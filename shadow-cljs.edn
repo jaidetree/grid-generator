@@ -1,0 +1,19 @@
+;; shadow-cljs configuration
+{:source-paths
+ ["src/dev"
+  "src/main"
+  "src/test"]
+
+ :dependencies
+ [[funcool/promesa "11.0.678"]
+  [reagent "1.2.0"]]
+
+ :http {:port 9841}
+ :dev-http {9000 "public"}
+
+ :builds
+ {:app {:target :esm
+        :output-dir "build/js"
+        :js-options {:js-provider :import}
+        :modules {:app {:init-fn grid.core/-main}}}}}
+
