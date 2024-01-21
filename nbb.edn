@@ -1,0 +1,2 @@
+{:paths ["src/main"]
+ :deps {reagent/reagent {:mvn/version "1.2.0"}}}
