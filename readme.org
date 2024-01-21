@@ -1,0 +1,25 @@
+#+title: Grid Generator
+
+A toolkit for generating paper-sized grid SVG templates for tools like Goodnotes 6.
+
+* Usage
+
+1. Clone the repo
+2. Run ~npm install~
+3. Run ~npm run dev~ to start the web view
+4. Visit [[http://localhost:9000]] to view the web server
+
+* Pipeline
+
+Once the grid designs are to your liking, use the cli to generate SVGs.
+
+#+begin_src shell
+npx nbb -m grid.tasks.render "letter-portrait"
+npx nbb -m grid.tasks.render "letter-landscape"
+npx nbb -m grid.tasks.render "spread"
+#+end_src
+
+Those commands will output SVGs to the ~out~ directory in the project folder.
+
+From there you can import into Inkscape and export to PDF. This retains the vector nature of the SVG supporting zooming in and out and the template rendering crisply.
+
