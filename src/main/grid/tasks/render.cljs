@@ -1,5 +1,6 @@
 (ns grid.tasks.render
   (:require
+    [clojure.string :as s]
     [promesa.core :as p]
     [reagent.dom.server :as rdom]
     [grid.docs]
@@ -15,6 +16,26 @@
    :plugins [{:name "preset-default"
               :params {:overrides {:cleanupIds false}}}]})
 
+(def inkscape "/usr/local/bin/inkscape")
+
+(defn svg->pdf
+  [svg-path]
+  (p/create
+    (fn [resolve reject]
+      (.exec cp
+             (s/join
+               " "
+               [inkscape
+                (str "\"" svg-path "\"")
+                "--export-filename"
+                (str "\"" (s/replace svg-path #"\.svg$" ".pdf") "\"")])
+             (fn [err stdout stderr]
+               (if (not (nil? err))
+                 (reject err)
+                 (do
+                   (js/console.error stderr)
+                   (resolve stdout))))))))
+
 (defn -main
   [id]
   (let [doc (get-doc (keyword id))
@@ -25,4 +46,6 @@
                                            (clj->js)))]
       (p/do
         (.writeFile fs filepath (.-data optimize-result) #js {:encoding "utf-8"})
-        (println "Rendered" filepath))))
+        (println "Rendered" filepath)
+        (svg->pdf filepath)
+        (println "Exported svg -> pdf"))))
