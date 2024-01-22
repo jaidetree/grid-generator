@@ -1,17 +1,26 @@
 (ns grid.core
   (:require
+    [clojure.pprint :refer [pprint]]
     [reagent.core :as r]
     [reagent.dom.client :as rdom]
+    [grid.api :as doc]
+    [grid.docs]
     [grid.generator :as g]))
+
+(defonce selected (r/atom :letter-portrait))
+
+(defn selected-doc
+  []
+  (doc/get-doc @selected))
 
 (defonce root (rdom/create-root (js/document.getElementById "root")))
 
 (defn update-title
   []
-  (let [size (g/selected-size)]
-    (set! (.-title js/window.document) (g/format-name size))))
+  (let [doc (selected-doc)]
+    (set! (.-title js/window.document) (:title doc))))
 
-(add-watch g/state :update-title
+(add-watch selected :update-title
            (fn [_key _atom _prev _next]
              (update-title)))
 
@@ -22,7 +31,7 @@
   [:div.flex.flex-col.items-center.justify-center.p-16.print:p-0
     [:div
      {:style {}}
-     [g/svg]]])
+     [g/generate-svg (selected-doc)]]])
 
 (defn ^:dev/after-load -main
   []
@@ -30,6 +39,7 @@
 
 (comment
   (js/alert "test")
-  (swap! g/state assoc :selected :spread)
-  (swap! g/state assoc :selected :letter-portrait)
-  @g/state)
+  (pprint (selected-doc))
+  (reset! selected :spread)
+  (reset! selected  :letter-portrait)
+  (reset! selected  :letter-landscape))

@@ -2,7 +2,11 @@
   (:require
     [promesa.core :as p]
     [reagent.dom.server :as rdom]
-    [grid.generator :refer [state svg selected-size format-name]]
+    [grid.docs]
+    [grid.api :refer [get-doc]]
+    [grid.generator :refer [generate-svg]]
+    ["path" :as path]
+    ["child_process" :as cp]
     ["fs/promises" :as fs]
     ["svgo" :refer [optimize loadConfig]]))
 
@@ -12,11 +16,10 @@
               :params {:overrides {:cleanupIds false}}}]})
 
 (defn -main
-  [size]
-  (swap! state assoc :selected (keyword size))
-  (let [html (rdom/render-to-static-markup [svg])
-        size (selected-size)
-        filepath (str "out/" (format-name size) ".svg")
+  [id]
+  (let [doc (get-doc (keyword id))
+        html (rdom/render-to-static-markup [generate-svg doc])
+        filepath (.join path "out" (:out-dir doc) (str (:title doc) ".svg"))
         optimize-result (optimize html (-> config
                                            (merge {:path filepath})
                                            (clj->js)))]
