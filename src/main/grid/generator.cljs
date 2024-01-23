@@ -1,6 +1,7 @@
 (ns grid.generator
   (:require
-    [grid.api :as doc]))
+    [grid.api :as doc]
+    [grid.color :as color]))
 
 (defn generate-svg
   [doc]
@@ -20,9 +21,9 @@
      [:rect
       {:x "0"
        :y "0"
-       :width "100%"
+       :width  "100%"
        :height "100%"
-       :fill "#191320"}]
+       :fill   (color/get :background)}]
      (into [:g {}] children)]))
 
 

@@ -1,6 +1,7 @@
 (ns grid.presets
   (:require
-    [grid.api :refer [get-doc grid-layer grid-pattern grid-layer]]))
+    [grid.api :refer [get-doc grid-layer grid-pattern grid-layer]]
+    [grid.color :as color]))
 
 (defn dots-pattern
   []
@@ -12,21 +13,22 @@
     {:cx "8px"
      :cy "8px"
      :r "1.5px"
-     :fill "#5C414F"}]])
+     #_#_:fill "#5C414F"
+     :fill (color/get :dots)}]])
 
 (defn basegrid-pattern
   []
   (grid-pattern
     {:id "basegrid"
      :size "16px"
-     :color "#334544"}))
+     :color (color/get :basegrid)}))
 
 (defn subgrid-pattern
   []
   (grid-pattern
     {:id "subgrid"
      :size "8px"
-     :color "#24253a"}))
+     :color (color/get :subgrid)}))
 
 (defn basegrid-layer
   [id]
@@ -62,7 +64,7 @@
       :y (str padding "px")
       :width (- (:width doc) (* 2 padding))
       :height (- (:height doc) (* 2 padding))
-      :stroke "#453941"
+      :stroke (color/get :outline)
       :strokeWidth "1px"
       :fill "none"}]))
 
