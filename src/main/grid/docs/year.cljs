@@ -29,6 +29,20 @@
    "Nov"
    "Dec"])
 
+(def emojis
+  ["🎊"
+   "⛄"
+   "💐"
+   "🌧️"
+   "😸"
+   "😎"
+   "🌭"
+   "💼"
+   "🤷"
+   "🎃"
+   "🎂"
+   "🎄"])
+
 (defn quantize
   [increment value]
   (* (js/Math.round (/ value increment))
@@ -88,41 +102,58 @@
 
 (doseq [row (range 0 3)
         col (range 0 4)]
+  (let [idx (+ col (* row 4))]
    (doc/add-child
      id
-     [:rect
-      {:strokeWidth "2px"
-       :stroke border
-       :fill "none"
-       :rx "5px"
-       :ry "5px"
-       :x (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))))
-       :y (doc/px (+ (* 6 16) (* row (+ rect-height (* 2 16)))))
-       :width (doc/px rect-width)
-       :height (doc/px rect-height)}])
+     [:g
+      {:key idx}
+      [:rect
+       {:strokeWidth "2px"
+        :stroke border
+        :fill "none"
+        :rx "5px"
+        :ry "5px"
+        :x (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))))
+        :y (doc/px (+ (* 6 16) (* row (+ rect-height (* 2 16)))))
+        :width (doc/px rect-width)
+        :height (doc/px rect-height)}]
 
-   (doc/add-child
-     id
-     [:line
-      {:strokeWidth "2px"
-       :stroke      border
-       :x1 (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))))
-       :x2 (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16))) rect-width))
-       :y1 (doc/px (+ (* 9 16) (* row (+ rect-height (* 2 16)))))
-       :y2 (doc/px (+ (* 9 16) (* row (+ rect-height (* 2 16)))))}])
+      [:line
+       {:strokeWidth "2px"
+        :stroke      border
+        :x1 (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))))
+        :x2 (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16))) rect-width))
+        :y1 (doc/px (+ (* 9 16) (* row (+ rect-height (* 2 16)))))
+        :y2 (doc/px (+ (* 9 16) (* row (+ rect-height (* 2 16)))))}]
 
-   (doc/add-child
-     id
-     [:text
-      {:x           (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))
-                               (/ rect-width 2)))
-       :y           (doc/px (+ (* 8 16) (* row (+ rect-height (* 2 16)))))
-       :font-family "OperatorMono Nerd Font"
-       :font-size   "24px"
-       :font-style  "italic"
-       :fill        (color/get :teal)
-       :text-anchor "middle"}
-      (nth months (+ (* row 4) col))]))
+      [:text
+       {:x           (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))
+                                (/ rect-width 2)))
+        :y           (doc/px (+ (* 8 16) (* row (+ rect-height (* 2 16)))))
+        :font-family "OperatorMono Nerd Font"
+        :font-size   "24px"
+        :font-style  "italic"
+        :fill        (color/get :teal)
+        :text-anchor "middle"}
+       (str (nth months idx))]
+
+      [:circle
+       {:cx (doc/px (+ (* 2.5 16) (* col (+ rect-width (* 2 16)))))
+        :cy (doc/px (+ (* 7.5 16) (* row (+ rect-height (* 2 16)))))
+        :r "28px"
+        :stroke border
+        :stroke-width "2px"
+        :fill (color/get :dark-grape)}]
+
+      [:text
+       {:x           (doc/px (+ (* 2.5 16) (* col (+ rect-width (* 2 16)))))
+        :y           (doc/px (+ (* 8.5 16) (* row (+ rect-height (* 2 16)))))
+        :font-family "OperatorMono Nerd Font"
+        :font-size   "32px"
+        :fill        (color/get :teal)
+        :text-anchor "middle"}
+       (str (nth emojis idx))]])))
+
 
 (comment
   (for [row (range 0 3)

@@ -28,7 +28,13 @@
 
 (defn app
   []
-  [:div.flex.flex-col.items-center.justify-center.p-16.print:p-0
+  [:div.flex.flex-col.items-center.justify-center.p-16.gap-8.print:p-0
+    [:div
+     [:select
+      {:on-change #(reset! selected (keyword (.. % -currentTarget -value)))
+       :value (name @selected)}
+      (for [[id doc] @doc/state]
+        [:option {:key id :value id} (:title doc)])]]
     [:div
      {:style {}}
      [g/generate-svg (selected-doc)]]])
@@ -41,5 +47,6 @@
   (js/alert "test")
   (pprint (selected-doc))
   (reset! selected :spread)
-  (reset! selected  :letter-portrait)
-  (reset! selected  :letter-landscape))
+  (reset! selected :letter-portrait)
+  (reset! selected :letter-landscape)
+  (reset! selected :year))
