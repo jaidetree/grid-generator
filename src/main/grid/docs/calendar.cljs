@@ -122,64 +122,6 @@
 (def box-fill (-> (color/get :dark-grape)
                   (color/brightness 5)))
 
-(doc/add-pattern
-  id
-  [:<>
-   [:g
-    {:id "date-box"}
-    [svg/rounded-rect
-     {:strokeWidth "1px"
-      :stroke border
-      :fill box-fill
-      :r [0 0 10 0]
-      :x 0
-      :y 0
-      :width (* 2 16)
-      :height (* 2 16)}]]
-   [:g
-    {:id "date-box-tr"}
-    [svg/rounded-rect
-     {:strokeWidth "1px"
-      :stroke (-> (color/get :bone)
-                  (color/saturate -90)
-                  (color/brightness -50))
-      :fill box-fill
-      :r [0 10 10 0]
-      :x 0
-      :y 0
-      :width (* 2 16)
-      :height (* 2 16)}]]])
-
-
-(doseq [row (range 0 weeks)
-        col (range 0 7)]
-   (let [idx (+ (* row 7) col)
-         day (- (inc idx) first-weekday)]
-     (when (and (< 0 day)
-                (<= day days-in-month))
-       (doc/add-child
-         id
-         [:g
-          {:key idx}
-          [:use
-            {:href (if (= idx 6) "#date-box-tr" "#date-box")
-             :x (doc/px (+ (* x-start 16) (* col (+ rect-width (* x-gutter 16)))
-                          (- rect-width (* 2 16))))
-             :y (doc/px (+ (* y-start 16) (* row (+ rect-height (* y-gutter 16)))))}]
-
-          [:text
-            {:x           (doc/px (+ (* x-start 16) (* col (+ rect-width (* x-gutter 16)))
-                                     (- rect-width (* 1 16))))
-             :y           (doc/px (+ (* y-start 16) (* row (+ rect-height (* y-gutter 16)))
-                                     (* 1.25 16)))
-
-
-             :font-family "OperatorMono Nerd Font"
-             :font-size   "14px"
-             :font-style  "italic"
-             :fill        (color/get :teal)
-             :text-anchor "middle"}
-            (str day)]]))))
 
 (def weekdays ["Sunday"
                "Monday"
@@ -212,9 +154,9 @@
             #_(/ rect-width 2)
             8)
       :y (+ (* 16 y-start)
-            (* 1 16))
+            (* 1.5 16))
       :font-family "OperatorMono Nerd Font"
-      :font-size "13px"
+      :font-size "18px"
       :font-style "italic"
       :fill (color/get :pink)
       :text-anchor "start"}
@@ -243,6 +185,88 @@
     :strokeWidth "2px"
     :stroke border
     :fill "none"}])
+
+(doc/add-pattern
+  id
+  [:<>
+   [:g
+    {:id "date-circle"}
+    [:circle
+     {:strokeWidth "1px"
+      :fill (color/get :teal)
+      :r (* 1 16)
+      :cx 0
+      :cy 0}]]
+   [:g
+    {:id "date-box"}
+    [svg/rounded-rect
+     {:r [0 0 10 0]
+      :x 0
+      :y 0
+      :fill box-fill
+      :stroke border
+      :width (* 3 16)
+      :height (* 2 16)}]]
+   [:g
+    {:id "date-box-tr"}
+    [svg/rounded-rect
+     {:r [0 10 10 0]
+      :x 0
+      :y 0
+      :fill box-fill
+      :stroke border
+      :width (* 3 16)
+      :height (* 2 16)}]]])
+
+(doseq [row (range 0 weeks)
+        col (range 0 7)]
+   (let [idx (+ (* row 7) col)
+         day (- (inc idx) first-weekday)
+         x-offset (- (rand 10) 5)
+         y-offset (- (rand 10) 5)
+         x (+ (* x-start 16)
+              (* col (+ rect-width (* x-gutter 16)))
+              (- rect-width 16)
+              x-offset)
+         y (+ (* y-start 16)
+              (* row (+ rect-height (* y-gutter 16)))
+              (* 1 16)
+              y-offset)
+         tx (+ x 16)
+         ty (+ y 16)]
+
+     (when (and (< 0 day)
+                (<= day days-in-month))
+       (doc/add-child
+         id
+         [:g
+           {:key idx}
+           [:use
+            {:href (if (= idx 6) "#date-box-tr" "#date-box")
+             :x (+ (* x-start 16)
+                   (* col (+ rect-width (* x-gutter 16)))
+                   (- rect-width (* 3 16)))
+             :y (+ (* y-start 16)
+                   (* row (+ rect-height (* y-gutter 16))))}]
+           [:g
+            {:transform (str "rotate(" (- (rand 40) 20) " " tx " " ty  ") "
+                             "translate(" tx " " ty ") "
+                             "scale(" (+ 1 (rand 0.25)) ") "
+                             "translate(-" tx " -" ty ")")}
+            [:use
+              {:href "#date-circle"
+               :x (doc/px x)
+               :y (doc/px y)}]
+
+            [:text
+              {:x (doc/px x)
+               :y (doc/px (+ 4 y))
+               :font-family "OperatorMono Nerd Font"
+               :font-size   "14px"
+               :font-style  "italic"
+               :fill        (color/get :dark-grape)
+               :text-anchor "middle"}
+              (str day)]]]))))
 
 (comment
   (for [row (range 0 3)
