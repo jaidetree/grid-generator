@@ -34,9 +34,11 @@
 
 (defn calc-rect-width
  [doc-width]
- (- (/ (- doc-width (* 2 16))
-       4)
-    (* 2 16)))
+ (quantize
+   16
+   (- (/ (- doc-width (* 2 16))
+         4)
+      (* 2 16))))
 
 (defn calc-rect-height
   [doc-height]
@@ -102,6 +104,7 @@
           :cy (doc/px y)
           :r  (doc/px r)
           :fill circle-bg}])))
+
 (def project-state-colors (cycle [(color/get :pink) (color/get :teal)]))
 (doseq [stroke (take 12 project-state-colors)]
   (let [x #_(rand-int width) -16
@@ -128,7 +131,7 @@
         :strokeLinecap "round"
         :stroke stroke}])))
 
-(def project-state-colors
+(def project-state-hues
   [-10
    60
    80
@@ -146,7 +149,7 @@
     [:g
       [:rect
        {:fill (-> (color/get :dark-grape)
-                  (color/hue (nth project-state-colors col))
+                  (color/hue (nth project-state-hues col))
                   (color/saturate -10)
                   (color/brightness 5))
         :rx "10px"
@@ -163,7 +166,7 @@
         :font-family "FontAwesome 5 Pro"
         :font-size   (doc/px (* 16 10))
         :fill        (-> (color/get :dark-grape)
-                         (color/hue (nth project-state-colors col))
+                         (color/hue (nth project-state-hues col))
                          (color/saturate 0)
                          (color/brightness 9))
         :text-anchor "end"}
@@ -268,4 +271,5 @@
     :strokeWidth "1px"}])
 
 (comment
-  [width height])
+  [width height]
+  [(- rect-width (* 2 16)) rect-height])

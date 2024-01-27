@@ -12,9 +12,7 @@
       :xmlns "http://www.w3.org/2000/svg"
       :xmlnsXlink "http://www.w3.org/1999/xlink"
       :version "1.1"
-      :viewBox (str "0 0 " width " " height)
-      :on-click (fn [e]
-                  (js/window.print (.-currentTarget e)))}
+      :viewBox (str "0 0 " width " " height)}
      [:defs
       (for [[idx pattern] (map-indexed vector patterns)]
         [:<>  {:key idx} pattern])]
