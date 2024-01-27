@@ -4,8 +4,8 @@
     [grid.color :as color]))
 
 (defn generate-svg
-  [doc]
-  (let [{:keys [width height children patterns]} doc]
+  [{:keys [props defs children]}]
+  (let [{:keys [width height]} props]
     [:svg
      {:width (doc/px width)
       :height (doc/px height)
@@ -13,16 +13,15 @@
       :xmlnsXlink "http://www.w3.org/1999/xlink"
       :version "1.1"
       :viewBox (str "0 0 " width " " height)}
-     [:defs
-      (for [[idx pattern] (map-indexed vector patterns)]
-        [:<>  {:key idx} pattern])]
-     [:rect
-      {:x "0"
-       :y "0"
-       :width  "100%"
-       :height "100%"
-       :fill   (color/get :background)}]
-     (into [:g {}] children)]))
+     (into [:defs] defs)
+     [:g
+      [:rect
+       {:x "0"
+        :y "0"
+        :width  "100%"
+        :height "100%"
+        :fill   (color/get :background)}]
+      (into [:g] children)]]))
 
 
 

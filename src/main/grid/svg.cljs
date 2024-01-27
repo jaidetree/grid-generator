@@ -2,6 +2,30 @@
   (:require
     [clojure.string :as s]))
 
+(def ppi 96)
+
+(defn in->px
+  [in]
+  (* in ppi))
+
+(defn px
+  [x]
+  (str x "px"))
+
+(defn quantize
+  [increment value]
+  (* (js/Math.round (/ value increment))
+     increment))
+
+(defn calc-grid-size
+ [{:keys [total items start gutter] :or {start 1}}]
+ (quantize
+    16
+    (-> (- total start)
+        (- (* 2 gutter))
+        (/ items))))
+
+
 (defn path
   [& parts]
   (s/join " " parts))
@@ -46,6 +70,22 @@
   ([rx ry x-axis-rotation large-arc-flag sweep-flag dx dy]
    (s/join " " ["a" rx ry x-axis-rotation large-arc-flag sweep-flag dx dy])))
 
+(defn transform
+  [& parts]
+  (s/join " " parts))
+
+(defn rotate
+  [angle x y]
+  (str "rotate(" (s/join " " [angle x y]) ")"))
+
+(defn translate
+  [x & [y]]
+  (str "translate(" (s/join " " [x y]) ")"))
+
+(defn scale
+  [sx & [sy]]
+  [str "scale(" (s/join [sx sy]) ")"])
+
 (defn normalize-corner-radius
   [radius]
   (cond (not radius)     [0 0 0 0]
@@ -71,6 +111,38 @@
                       (v-line (+ y tl))
                       (arc-local tl tl (* -1 tl)))})]))
 
+(defn grid-pattern
+  [{:keys [id size color]}]
+  [:pattern
+   {:id id
+    :patternUnits "userSpaceOnUse"
+    :width size
+    :height size}
+   [:line
+    {:x1 "0"
+     :y1 "0"
+     :x2 "0"
+     :y2 size
+     :stroke color
+     :strokeWidth "1px"
+     :fill "none"}]
+   [:line
+    {:x1 "0"
+     :y1 size
+     :x2 size
+     :y2 size
+     :stroke color
+     :strokeWidth "1px"
+     :fill "none"}]])
+
+(defn grid-layer
+  [{:keys [width height fill-id padding]}]
+  [:rect
+    {:x (px padding)
+     :y (px padding)
+     :width (- width (* 2 padding))
+     :height (- height (* 2 padding))
+     :fill (str "url(#" fill-id ")")}])
 
 (comment
   (seq? [10 10])

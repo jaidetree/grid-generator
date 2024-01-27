@@ -14,6 +14,11 @@
   [x]
   (str x "px"))
 
+(defn quantize
+  [increment value]
+  (* (js/Math.round (/ value increment))
+     increment))
+
 (defn create
   [{:keys [id title width height out-dir]}]
   (if (get @state key)
