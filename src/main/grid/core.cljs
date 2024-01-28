@@ -14,13 +14,15 @@
 
 (defonce selected (r/atom "Calendar"))
 
-(def docs {"Calendar" (grid.docs.calendar/calendar)})
+(def docs {"Letter Portrait" #'grid.docs.letter-portrait/doc
+           "Calendar"        #'grid.docs.calendar/doc})
 
 (defonce root (rdom/create-root (js/document.getElementById "root")))
 
 (defn selected-doc
   []
-  (get docs @selected))
+  (when-let [doc-fn (get docs @selected)]
+    (doc-fn)))
 
 (defn update-title
   []

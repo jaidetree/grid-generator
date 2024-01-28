@@ -4,8 +4,6 @@
      [clojure.pprint :refer [pprint]]
      [promesa.core :as p]
      [reagent.dom.server :as rdom]
-     [grid.docs]
-     [grid.api :refer [get-doc]]
      [grid.generator :refer [generate-svg]]
      ["path" :as path]
      ["child_process" :as cp]

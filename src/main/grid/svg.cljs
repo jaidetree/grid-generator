@@ -22,9 +22,9 @@
  (quantize
     16
     (-> (- total start)
-        (- (* 2 gutter))
-        (/ items))))
-
+        (- gutter)
+        (/ items)
+        (- gutter))))
 
 (defn path
   [& parts]
@@ -70,6 +70,18 @@
   ([rx ry x-axis-rotation large-arc-flag sweep-flag dx dy]
    (s/join " " ["a" rx ry x-axis-rotation large-arc-flag sweep-flag dx dy])))
 
+(defn curve
+  [x1 y1 x2 y2 x y]
+  (str "C" (s/join ", " [(str x1 " " y1)
+                         (str x2 " " y2)
+                         (str x " " y)])))
+
+(defn curve-local
+  [dx1 dy1 dx2 dy2 dx dy]
+  (str "c" (s/join ", " [(str dx1 " " dy1)
+                         (str dx2 " " dy2)
+                         (str dx " " dy)])))
+
 (defn transform
   [& parts]
   (s/join " " parts))
@@ -100,7 +112,9 @@
   [{:keys [r x y width height] :as props}]
   (let [[tl tr bl br] (normalize-corner-radius r)]
     [:path
-     (merge props
+     (-> props
+         (dissoc :r
+          (merge
             {:d (path (move   (+ x tl) y)
                       (h-line (+ x (- width tr)))
                       (arc-local tr tr tr)
@@ -109,7 +123,17 @@
                       (h-line (+ x bl))
                       (arc-local bl (* -1 bl) (* -1 bl))
                       (v-line (+ y tl))
-                      (arc-local tl tl (* -1 tl)))})]))
+                      (arc-local tl tl (* -1 tl)))})))]))
+
+(defn swoosh
+  [{:keys [curve] :as props}]
+  (let [[x y dx1 dy1 dx2 dy2 dx dy] curve]
+    [:path
+     (-> props
+         (dissoc :curve)
+         (merge
+           {:d (path (move x y)
+                     (curve-local dx1 dy1 dx2 dy2 dx dy))}))]))
 
 (defn grid-pattern
   [{:keys [id size color]}]

@@ -274,7 +274,7 @@
      :month-name    month-name
      :weeks         weeks}))
 
-(defn calendar
+(defn doc
   [& [year month]]
   (let [{:keys [month-name year] :as props} (create-props {:year year
                                                            :month month})
@@ -305,17 +305,17 @@
 (defn -main
   [& args]
   (cond (empty? args)
-        [(calendar)]
+        [(doc)]
 
         (= (first args) "year")
         (let [[year] args]
           (for [month (range 0 11)]
-            (map #(calendar year month))))
+            (map #(doc year month))))
 
         :else
         (->> args
              (map js/Number)
              (partition 2)
              (map (fn [[year month]]
-                    (calendar year (dec month)))))))
+                    (doc year (dec month)))))))
 
