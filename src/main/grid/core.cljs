@@ -3,22 +3,29 @@
     [clojure.pprint :refer [pprint]]
     [reagent.core :as r]
     [reagent.dom.client :as rdom]
-    [grid.api :as doc]
-    [grid.docs]
-    [grid.generator :as g]))
+    [grid.generator :as g]
+    [grid.docs.letter-portrait]
+    [grid.docs.letter-landscape]
+    [grid.docs.spread]
+    [grid.docs.year]
+    [grid.docs.projects]
+    [grid.docs.todo-item]
+    [grid.docs.calendar]))
 
-(defonce selected (r/atom :letter-portrait))
+(defonce selected (r/atom "Calendar"))
 
-(defn selected-doc
-  []
-  (doc/get-doc @selected))
+(def docs {"Calendar" (grid.docs.calendar/calendar)})
 
 (defonce root (rdom/create-root (js/document.getElementById "root")))
 
+(defn selected-doc
+  []
+  (get docs @selected))
+
 (defn update-title
   []
-  (let [doc (selected-doc)]
-    (set! (.-title js/window.document) (:title doc))))
+  (let [title @selected]
+    (set! (.-title js/window.document) title)))
 
 (add-watch selected :update-title
            (fn [_key _atom _prev _next]
@@ -33,11 +40,11 @@
      [:select
       {:on-change #(reset! selected (keyword (.. % -currentTarget -value)))
        :value (name @selected)}
-      (for [[id doc] @doc/state]
-        [:option {:key id :value id} (:title doc)])]]
+      (for [[title doc] docs]
+        [:option {:key title :value title} title])]]
     [:div
      {:style {}}
-     [g/generate-svg (selected-doc)]]])
+     (g/generate-svg (selected-doc))]])
 
 (defn ^:dev/after-load -main
   []
@@ -45,7 +52,6 @@
 
 (comment
   (js/alert "test")
-  (pprint (selected-doc))
   (reset! selected :spread)
   (reset! selected :letter-portrait)
   (reset! selected :letter-landscape)
