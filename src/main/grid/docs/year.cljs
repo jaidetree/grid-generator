@@ -1,76 +1,44 @@
 (ns grid.docs.year
   (:require
-    [grid.api :as doc]
     [grid.presets :as presets]
-    [grid.color :as color]))
+    [grid.color :as color]
+    [grid.svg :as svg]))
 
-(def id (doc/create
-          {:id :year
-           :title "Year 2024"
-           :out-dir "journal"
-           :width (doc/in->px (* 2 8.5))
-           :height (doc/in->px 11)}))
+(def width (svg/in->px (* 2 8.5)))
+(def height (svg/in->px 11))
 
-(doc/add-pattern id (presets/basegrid-pattern))
-(doc/add-pattern id (presets/subgrid-pattern))
-(doc/add-pattern id (presets/dots-pattern))
+(def x-start (* 2 16))
+(def x-gutter (* 2 16))
+
+(def y-start (* 6 16))
+(def y-gutter (* 2 16))
 
 (def months
-  ["Jan"
-   "Feb"
-   "Mar"
-   "Apr"
-   "May"
-   "Jun"
-   "Jul"
-   "Aug"
-   "Sep"
-   "Oct"
-   "Nov"
-   "Dec"])
+  [{:title "Jan"
+    :emoji "🍾"}
+   {:title "Feb"
+    :emoji "⛄"}
+   {:title "Mar"
+    :emoji "💐"}
+   {:title "Apr"
+    :emoji "🌧️"}
+   {:title "May"
+    :emoji "😸"}
+   {:title "Jun"
+    :emoji "😎"}
+   {:title "Jul"
+    :emoji "🌭"}
+   {:title "Aug"
+    :emoji "💼"}
+   {:title "Sep"
+    :emoji "🏖️"}
+   {:title "Oct"
+    :emoji "🎃"}
+   {:title "Nov"
+    :emoji "🎂"}
+   {:title "Dec"
+    :emoji "🎊"}])
 
-(def emojis
-  ["🍾"
-   "⛄"
-   "💐"
-   "🌧️"
-   "😸"
-   "😎"
-   "🌭"
-   "💼"
-   "🏖️"
-   "🎃"
-   "🎂"
-   "🎊"])
-
-(defn quantize
-  [increment value]
-  (* (js/Math.round (/ value increment))
-     increment))
-
-(defn calc-rect-width
- [doc-width]
- (- (/ (- doc-width
-          (* 2 16))
-       4)
-    (* 2 16)))
-
-(defn calc-rect-height
-  [doc-height]
-  (quantize
-    16
-    (- (/ (- doc-height
-             (* 2 16))
-          3)
-       (* 3 16))))
-
-(def doc (doc/get-doc id))
-
-(def width (:width doc))
-(def height (:height doc))
-
-(def rect-width (calc-rect-width width))
-(def rect-height (calc-rect-height height))
 
 (def border
   (-> (color/get :outline)
@@ -83,75 +51,47 @@
       (color/brightness 5)))
 
 (def circle-bg
-  #_(-> (color/get :dots)
-       (color/saturate -10)
-       (color/brightness -10))
   (color/get :pink))
 
-(doseq [i (range 0 35)]
-  (let [x #_(+ (/ width 2)
-               (- (rand-int 600) 300))
-          (rand-int width)
-        y #_(+ (/ width 2)
-              (- (rand-int 600) 300))
-        (+ (rand-int (- height (* 16 6)))
-           (* 16 6))
-        r (rand-int 40)]
-    (doc/add-child
-      id
-      [:circle
-       {:cx (doc/px x)
-        :cy (doc/px y)
-        :r  (doc/px r)
-        :fill circle-bg}])))
+(defn swoosh
+  []
+  (svg/swoosh
+    {:curve [(* 4 16) (* 32 16)
+             800 -800 800 800
+             (- width (* 8 16)) 0]
+     :stroke (color/get :teal)
+     :strokeWidth (* 4 16)
+     :strokeLinecap "round"
+     :fill "none"}))
 
-(doc/add-child
-  id
-  [:path
-   {:d "M207.81,864.662C207.81,864.662 380.878,401.436 782.728,607.848C1188.92,816.491 1411.69,347.644 1411.69,347.644"
-    :fill "none"
-    :stroke (color/get :teal)
-    :strokeLinecap "round"
-    :strokeWidth "64px"}])
+(defn random-circles
+  []
+  [:g
+   (for [i (range 0 35)]
+     (let [x (rand-int width)
+           y (+ (rand-int (- height (* 16 6)))
+                (* 16 6))
+           r (rand-int 40)]
+        [:circle
+          {:key i
+           :cx (svg/px x)
+           :cy (svg/px y)
+           :r  (svg/px r)
+           :fill circle-bg}]))])
 
-(doseq [i (range 0 35)]
-  (let [x #_(+ (/ width 2)
-               (- (rand-int 600) 300))
-          (rand-int width)
-        y #_(+ (/ width 2)
-              (- (rand-int 600) 300))
-        (+ (rand-int (- height (* 16 6)))
-           (* 16 6))
-        r (rand-int 40)]
-    (doc/add-child
-      id
-      [:circle
-       {:cx (doc/px x)
-        :cy (doc/px y)
-        :r  (doc/px r)
-        :fill circle-bg}])))
+(defn month-fill-symbol
+  [{:keys [rect-width rect-height]}]
+  [:g
+   {:id "month-fill"}
+   [:rect
+     {:fill month-bg
+      :rx "5px"
+      :ry "5px"
+      :width (svg/px rect-width)
+      :height (svg/px rect-height)}]])
 
-
-(doseq [row (range 0 3)
-        col (range 0 4)]
-   (doc/add-child
-     id
-     [:rect
-      {:fill month-bg
-       :rx "5px"
-       :ry "5px"
-       :x (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))))
-       :y (doc/px (+ (* 6 16) (* row (+ rect-height (* 2 16)))))
-       :width (doc/px rect-width)
-       :height (doc/px rect-height)}]))
-
-
-(doc/add-child id (presets/subgrid-layer id))
-(doc/add-child id (presets/basegrid-layer id))
-(doc/add-child id (presets/dots-layer id))
-
-(doc/add-pattern
-  id
+(defn month-symbol
+  [{:keys [rect-width rect-height]}]
   [:g
    {:id "month"}
    [:rect
@@ -162,85 +102,114 @@
      :ry "5px"
      :x "0px"
      :y "0px"
-     :width (doc/px rect-width)
-     :height (doc/px rect-height)}]
+     :width (svg/px rect-width)
+     :height (svg/px rect-height)}]
 
    [:line
     {:strokeWidth "2px"
      :stroke      border
      :x1 "0px"
-     :y1 (doc/px (* 16 3))
+     :y1 (svg/px (* 3 16))
      :x2 rect-width
-     :y2 (doc/px (* 16 3))}]
+     :y2 (svg/px (* 3 16))}]
 
    [:circle
-    {:cx (doc/px 8)
-     :cy (doc/px 24)
+    {:cx (svg/px 8)
+     :cy (svg/px 24)
      :r "28px"
      :stroke border
      :stroke-width "2px"
      :fill month-bg}]])
 
-(doseq [row (range 0 3)
-        col (range 0 4)]
-  (let [idx (+ col (* row 4))]
-   (doc/add-child
-     id
-     [:g
-      {:key idx}
-      [:use
-       {:href "#month"
-        :x (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))))
-        :y (doc/px (+ (* 6 16) (* row (+ rect-height (* 2 16)))))}]
+(defn month-fill
+  [{:keys [rect-width rect-height]}]
+  [:g
+   (for [row (range 0 3)
+         col (range 0 4)]
+     [:use
+      {:key (str row "-" col)
+       :href "#month-fill"
+       :x (svg/px (+ x-start (* col (+ rect-width x-gutter))))
+       :y (svg/px (+ y-start (* row (+ rect-height y-gutter))))}])])
 
-      [:text
-       {:x           (doc/px (+ (* 2 16) (* col (+ rect-width (* 2 16)))
-                                (/ rect-width 2)))
-        :y           (doc/px (+ (* 8 16) (* row (+ rect-height (* 2 16)))))
-        :font-family "OperatorMono Nerd Font"
-        :font-size   "24px"
-        :font-style  "italic"
-        :fill        (color/get :teal)
-        :text-anchor "middle"}
-       (str (nth months idx))]
+(defn month-boxes
+  [{:keys [rect-width rect-height]}]
+  [:g
+    (for [row (range 0 3)
+          col (range 0 4)]
+      (let [idx (+ col (* row 4))
+            month-map (nth months idx)]
+       [:g
+         {:key idx}
+         [:use
+          {:href "#month"
+           :x (svg/px (+ x-start (* col (+ rect-width x-gutter))))
+           :y (svg/px (+ y-start (* row (+ rect-height y-gutter))))}]
 
-      [:text
-       {:x           (doc/px (+ (* 2.5 16) (* col (+ rect-width (* 2 16)))))
-        :y           (doc/px (+ (* 8.5 16) (* row (+ rect-height (* 2 16)))))
-        :font-family "OperatorMono Nerd Font"
-        :font-size   "32px"
-        :fill        (color/get :teal)
-        :text-anchor "middle"}
-       (str (nth emojis idx))]])))
+         [:text
+          {:x           (svg/px (+ x-start (* col (+ rect-width x-gutter))
+                                   (/ rect-width 2)))
+           :y           (svg/px (+ y-start (* row (+ rect-height x-gutter))
+                                   (* 2 16)))
+           :font-family "OperatorMono Nerd Font"
+           :font-size   "24px"
+           :font-style  "italic"
+           :fill        (color/get :teal)
+           :text-anchor "middle"}
+          (str (:title month-map))]
 
-(comment
-  (for [row (range 0 3)
-        col (range 0 4)]
-    (+ (* row 4)
-       col)))
+         [:text
+          {:x           (svg/px (+ (* 2.5 16) (* col (+ rect-width (* 2 16)))))
+           :y           (svg/px (+ (* 8.5 16) (* row (+ rect-height (* 2 16)))))
+           :font-family "OperatorMono Nerd Font"
+           :font-size   "32px"
+           :fill        (color/get :teal)
+           :text-anchor "middle"}
+          (str (:emoji month-map))]]))])
 
-(doc/add-child id (presets/outline-layer id))
+(defn create-props
+  []
+  (let [rect-width (svg/calc-grid-size
+                     {:total width
+                      :items 4
+                      :start x-start
+                      :gutter x-gutter})
+        rect-height (svg/calc-grid-size
+                      {:total height
+                       :items 3
+                       :start y-start
+                       :gutter y-gutter})]
+    {:width width
+     :height height
+     :rect-width rect-width
+     :rect-height rect-height}))
 
-(doc/add-child
-  id
-  [:text
-   {:x (/ width 2)
-    :y 48
-    :font-family "OperatorMono Nerd Font"
-    :font-size "30px"
-    :fill (color/get :pink)
-    :text-anchor "middle"}
-   "Year 2024"])
+(defn doc
+  []
+  (let [props (create-props)]
+    {:file     "journal/Year"
+     :props    props
+     :defs     [[presets/basegrid-pattern]
+                [presets/subgrid-pattern]
+                [presets/dots-pattern]
+                [month-symbol            props]
+                [month-fill-symbol       props]]
 
-(doc/add-child
-  id
-  [:line
-   {:x1 10
-    :y1 (+ 48 16)
-    :x2 (- width 10)
-    :y2 (+ 48 16)
-    :stroke (color/get :bone)
-    :strokeWidth "1px"}])
+     :children [[:g
+                 [random-circles         props]
+                 [swoosh                 props]
+                 [random-circles         props]
+                 [month-fill             props]]
+                [:g
+                 [presets/subgrid-layer  props]
+                 [presets/basegrid-layer props]
+                 [presets/dots-layer     props]]
+                [:g
+                 [month-boxes            props]]
+                [:g
+                 [presets/outline-layer  props]
+                 [presets/title-layer    props "Year 2024"]]]}))
 
-(comment
-  [width height])
+(defn -main
+  [& _args]
+  (list (doc)))

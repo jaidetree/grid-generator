@@ -335,7 +335,7 @@
   (cond (empty? args)
         [(doc)]
 
-        (= (first args) "year")
+        (= (second args) "year")
         (let [[year] args]
           (for [month (range 0 11)]
             (map #(doc year month))))
