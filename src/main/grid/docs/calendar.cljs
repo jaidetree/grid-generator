@@ -1,5 +1,6 @@
 (ns grid.docs.calendar
   (:require
+    [clojure.string :as s]
     [grid.presets :as presets]
     [grid.color :as color]
     [grid.svg :as svg]))
@@ -26,8 +27,10 @@
       (map-indexed
         (fn [idx m]
           (assoc
-            m :hue
-            (* idx weekday-color-interval))))))
+            m :color
+            (-> [(* idx weekday-color-interval) 80 60]
+                (color/hsl->rgb)
+                (color/rgb->hex)))))))
 
 (def border
   (-> (color/get :outline)
@@ -160,11 +163,31 @@
            :font-family "OperatorMono Nerd Font"
            :font-size "18px"
            :font-style "italic"
-           :fill (-> [(:hue weekday) 100 60]
-                     (color/hsl->rgb)
-                     (color/rgb->hex))
+           :fill (:color weekday)
            :text-anchor "start"}
           (:title weekday)]))])
+
+(defn date-weekdays
+  [{:keys [rect-width rect-height weeks]}]
+  [:g
+   (for [row (range 1 weeks)
+         col (range 0 7)]
+    (let [weekday (nth weekdays col)]
+     [:g
+      {:key (str row "-" col)}
+      [:text
+       {:x (+ x-start (* col (+ rect-width x-gutter))
+              (* 1 8))
+        :y (+ y-start (* row (+ rect-height y-gutter))
+              (* 2.5 8))
+        :font-family "OperatorMono Nerd Font"
+        :font-size   "18px"
+        :font-style  "italic"
+        :fill        (-> (color/get :dark-grape)
+                         (color/saturate -4)
+                         (color/brightness 25))
+        :text-anchor "start"}
+       (str (subs (:title weekday) 0 3) " • W" (inc row))]]))])
 
 (defn date-box
   [{:keys [rect-width rect-height idx col row]}]
@@ -200,7 +223,7 @@
                  (color/brightness 50))}]]))
 
 (defn date-circle
-  [{:keys [rect-width rect-height col row day row-saturations]}]
+  [{:keys [rect-width rect-height col row day]}]
   (let [weekday (nth weekdays col)
         x-offset (- (rand 24) 12)
         y-offset (- (rand 16) 8)
@@ -228,9 +251,7 @@
         :d (+ 24 (rand 8))
         :x x
         :y y
-        :fill (-> [(:hue weekday) (nth row-saturations row) 50]
-                  (color/hsl->rgb)
-                  (color/rgb->hex))}]
+        :fill (:color weekday)}]
      [:text
        {:x (svg/px x)
         :y (svg/px (+ 4 y))
@@ -243,7 +264,7 @@
 
 (defn day-labels
   [{:keys [weeks first-weekday days-in-month] :as props}]
-  [:<>
+  [:g
    (for [row (range 0 weeks)
          col (range 0 7)]
     (let [idx (+ (* row 7) col)
@@ -302,10 +323,7 @@
      :first-weekday first-weekday
      :days-in-month days-in-month
      :month-name    month-name
-     :weeks         weeks
-     :row-saturations (let [interval (/ 60 weeks)]
-                        (for [row (range 0 weeks)]
-                         (+ 20 (* row interval))))}))
+     :weeks         weeks}))
 
 (defn doc
   [& [year month]]
@@ -329,7 +347,8 @@
                  [column-dividers        props]
                  [row-dividers           props]
                  [calendar-border        props]
-                 [column-labels         props]
+                 [column-labels          props]
+                 [date-weekdays          props]
                  [day-labels             props]]
                 [presets/outline-layer   props]
                 [presets/title-layer     props title]]}))
