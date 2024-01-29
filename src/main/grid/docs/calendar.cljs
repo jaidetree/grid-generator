@@ -26,10 +26,8 @@
       (map-indexed
         (fn [idx m]
           (assoc
-            m :color
-            (-> [(* idx weekday-color-interval) 70 60]
-                (color/hsl->rgb)
-                (color/rgb->hex)))))))
+            m :hue
+            (* idx weekday-color-interval))))))
 
 (def border
   (-> (color/get :outline)
@@ -147,7 +145,7 @@
          :x2     (+ x-start (* 7 rect-width))
          :y2     y}]))])
 
-(defn weekday-labels
+(defn column-labels
   [{:keys [rect-width]}]
   [:g
     (for [col (range 0 7)]
@@ -162,7 +160,9 @@
            :font-family "OperatorMono Nerd Font"
            :font-size "18px"
            :font-style "italic"
-           :fill (:color weekday)
+           :fill (-> [(:hue weekday) 100 60]
+                     (color/hsl->rgb)
+                     (color/rgb->hex))
            :text-anchor "start"}
           (:title weekday)]))])
 
@@ -180,10 +180,7 @@
   [{:keys [x y fill d transform]}]
   (let [r 20
         x (+ x (* -1 (/ d 2)))
-        ;; Thanks to chaos95 for figuring out this equation
-        y (+ y (js/Math.sqrt
-                 (- (js/Math.pow r 2)
-                    (/ (js/Math.pow d 2) 4))))]
+        y (+ y (/ d 2) 2)]
     [:g
      {:class "date-sticker"
       :transform transform}
@@ -203,7 +200,7 @@
                  (color/brightness 50))}]]))
 
 (defn date-circle
-  [{:keys [rect-width rect-height col row day]}]
+  [{:keys [rect-width rect-height col row day row-saturations]}]
   (let [weekday (nth weekdays col)
         x-offset (- (rand 24) 12)
         y-offset (- (rand 16) 8)
@@ -231,8 +228,9 @@
         :d (+ 24 (rand 8))
         :x x
         :y y
-        :fill (:color weekday)}]
-
+        :fill (-> [(:hue weekday) (nth row-saturations row) 50]
+                  (color/hsl->rgb)
+                  (color/rgb->hex))}]
      [:text
        {:x (svg/px x)
         :y (svg/px (+ 4 y))
@@ -304,7 +302,10 @@
      :first-weekday first-weekday
      :days-in-month days-in-month
      :month-name    month-name
-     :weeks         weeks}))
+     :weeks         weeks
+     :row-saturations (let [interval (/ 60 weeks)]
+                        (for [row (range 0 weeks)]
+                         (+ 20 (* row interval))))}))
 
 (defn doc
   [& [year month]]
@@ -328,7 +329,7 @@
                  [column-dividers        props]
                  [row-dividers           props]
                  [calendar-border        props]
-                 [weekday-labels         props]
+                 [column-labels         props]
                  [day-labels             props]]
                 [presets/outline-layer   props]
                 [presets/title-layer     props title]]}))
