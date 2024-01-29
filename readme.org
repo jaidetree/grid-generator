@@ -33,3 +33,8 @@ From there you can import into Inkscape and export to PDF. This retains the
 vector nature of the SVG supporting zooming in and out and the template
 rendering crisply.
 
+* Credits
+
+- Thanks to [[https://github.com/chaos95][Chaos95]] for the calendar sticker y
+  equation
+

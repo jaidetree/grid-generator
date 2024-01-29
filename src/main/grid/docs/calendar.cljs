@@ -27,7 +27,7 @@
         (fn [idx m]
           (assoc
             m :color
-            (-> [(* idx weekday-color-interval) 80 65]
+            (-> [(* idx weekday-color-interval) 70 60]
                 (color/hsl->rgb)
                 (color/rgb->hex)))))))
 
@@ -74,28 +74,6 @@
 (defn format-month-name
   [date]
   (.toLocaleDateString date "en-US" #js {:month "long"}))
-
-(defn date-circle-symbol
-  []
-  (let [x -12
-        y 14
-        r 16
-        d (* 1.5 r)]
-    [:g
-     {:id "date-circle"}
-     [:path
-      {:d (svg/path (svg/move-relative x y)
-                    (svg/arc-relative r r 0 1 1 d 0)
-                    "Z")
-       #_#_:fill (color/get :teal)}]
-     [:path
-      {:d (svg/path (svg/move-relative x y)
-                    (svg/arc-relative 32 60 0 0 1 d 0)
-                    "Z")
-       :fill (-> (color/get :teal)
-                 (color/hue -180)
-                 (color/saturate -40)
-                 (color/brightness 50))}]]))
 
 (defn date-box-symbol
   []
@@ -198,14 +176,40 @@
     :y (+ y-start
           (* row (+ rect-height y-gutter)))}])
 
+(defn date-sticker
+  [{:keys [x y fill d transform]}]
+  (let [r 20
+        x (+ x (* -1 (/ d 2)))
+        ;; Thanks to chaos95 for figuring out this equation
+        y (+ y (js/Math.sqrt
+                 (- (js/Math.pow r 2)
+                    (/ (js/Math.pow d 2) 4))))]
+    [:g
+     {:class "date-sticker"
+      :transform transform}
+     [:path
+      {:d (svg/path (svg/move x y)
+                    (svg/arc-relative r r 0 1 1 d 0)
+                    "Z")
+       :fill      fill
+       #_#_:fill (color/get :teal)}]
+     [:path
+      {:d (svg/path (svg/move x y)
+                    (svg/arc-relative (* 1.5 r) (* 2 r) 0 0 1 d 0)
+                    "Z")
+       :fill (-> (color/get :teal)
+                 (color/hue -180)
+                 (color/saturate -40)
+                 (color/brightness 50))}]]))
+
 (defn date-circle
   [{:keys [rect-width rect-height col row day]}]
   (let [weekday (nth weekdays col)
-        x-offset (- (rand 10) 5)
-        y-offset (- (rand 10) 5)
+        x-offset (- (rand 24) 12)
+        y-offset (- (rand 16) 8)
         x (+ x-start
              (* col (+ rect-width x-gutter))
-             (- rect-width 16)
+             (- rect-width 32)
              x-offset)
         y (+ y-start
              (* row (+ rect-height y-gutter))
@@ -215,18 +219,18 @@
         ty (+ y 16)]
     [:g
      {:transform (svg/transform
-                   (svg/rotate (- (rand 30) 15) tx ty)
-                   #_(svg/translate tx ty)
-                   #_(svg/scale (+ 1 (rand 0.25)))
-                   #_(svg/translate (* -1 tx) (* -1 ty)))}
-     [:use
-       {:href "#date-circle"
-        :transform (svg/transform
-                     (svg/translate -16 -16)
-                     (svg/rotate (rand -90) tx ty)
-                     (svg/translate 16 16))
-        :x (svg/px x)
-        :y (svg/px y)
+                  (svg/rotate (- (rand 30) 15) tx ty)
+                  #_(svg/translate tx ty)
+                  #_(svg/scale (+ 1 (rand 0.25)))
+                  #_(svg/translate (* -1 tx) (* -1 ty)))}
+     [date-sticker
+       {:transform (svg/transform
+                    (svg/translate -16 -16)
+                    (svg/rotate (rand -90) tx ty)
+                    (svg/translate 16 16))
+        :d (+ 24 (rand 8))
+        :x x
+        :y y
         :fill (:color weekday)}]
 
      [:text
@@ -313,7 +317,6 @@
      :defs     [[presets/basegrid-pattern]
                 [presets/subgrid-pattern]
                 [presets/dots-pattern]
-                [date-circle-symbol]
                 [date-box-symbol]
                 [date-box-tr-symbol]]
      :children [[fill-weekday-columns    props]
