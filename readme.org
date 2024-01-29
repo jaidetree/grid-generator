@@ -14,12 +14,22 @@ A toolkit for generating paper-sized grid SVG templates for tools like Goodnotes
 Once the grid designs are to your liking, use the cli to generate SVGs.
 
 #+begin_src shell
-npx nbb -m grid.tasks.render "letter-portrait"
-npx nbb -m grid.tasks.render "letter-landscape"
-npx nbb -m grid.tasks.render "spread"
+npx nbb -m grid.cli.render "letter-portrait"
+npx nbb -m grid.cli.render "letter-landscape"
+npx nbb -m grid.cli.render "spread"
+npx nbb -m grid.cli.render "year"
+npx nbb -m grid.cli.render "projects"
+npx nbb -m grid.cli.render "calendar"
+npx nbb -m grid.cli.render "calendar" 2024 1
+npx nbb -m grid.cli.render "calendar" 2024 all
 #+end_src
+
+The first argument should refer to the last segment of a grid.docs.* classpath,
+files are located in the =src/main/grid/docs= directory.
 
 Those commands will output SVGs to the ~out~ directory in the project folder.
 
-From there you can import into Inkscape and export to PDF. This retains the vector nature of the SVG supporting zooming in and out and the template rendering crisply.
+From there you can import into Inkscape and export to PDF. This retains the
+vector nature of the SVG supporting zooming in and out and the template
+rendering crisply.
 
