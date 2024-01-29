@@ -176,7 +176,7 @@
 (defn doc
   []
   (let [props (create-props)]
-    {:file "Projects"
+    {:file "journal/Projects"
      :props props
      :defs [[presets/basegrid-pattern]
             [presets/subgrid-pattern]
