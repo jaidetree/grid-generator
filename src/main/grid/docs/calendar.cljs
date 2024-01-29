@@ -13,21 +13,23 @@
 (def x-start  (* 2 16))
 (def y-start  (* 5 16))
 
+(def weekday-color-interval (/ 260 7)) ;; Covers red to blue
+
 (def weekdays
- [{:title "Sunday"
-   :color [0 50 50]}
-  {:title "Monday"
-   :color [40 50 50]}
-  {:title "Tuesday"
-   :color [80 50 50]}
-  {:title "Wednesday"
-   :color [120 50 50]}
-  {:title "Thursday"
-   :color [160 50 50]}
-  {:title "Friday"
-   :color [200 50 50]}
-  {:title "Saturday"
-   :color [240 100 60]}])
+ (->> [{:title "Sunday"}
+       {:title "Monday"}
+       {:title "Tuesday"}
+       {:title "Wednesday"}
+       {:title "Thursday"}
+       {:title "Friday"}
+       {:title "Saturday"}]
+      (map-indexed
+        (fn [idx m]
+          (assoc
+            m :color
+            (-> [(* idx weekday-color-interval) 80 65]
+                (color/hsl->rgb)
+                (color/rgb->hex)))))))
 
 (def border
   (-> (color/get :outline)
@@ -66,8 +68,7 @@
   (let [date (js/Date. date)]
     (doto date
       (.setMonth (inc (.getMonth date)) 1)
-      (.setDate (dec (.getDate date)))
-      (println))
+      (.setDate (dec (.getDate date))))
     (.getDate date)))
 
 (defn format-month-name
@@ -86,7 +87,7 @@
       {:d (svg/path (svg/move-relative x y)
                     (svg/arc-relative r r 0 1 1 d 0)
                     "Z")
-       :fill (color/get :teal)}]
+       #_#_:fill (color/get :teal)}]
      [:path
       {:d (svg/path (svg/move-relative x y)
                     (svg/arc-relative 32 60 0 0 1 d 0)
@@ -183,10 +184,7 @@
            :font-family "OperatorMono Nerd Font"
            :font-size "18px"
            :font-style "italic"
-           :fill (color/get :pink)
-           #_(-> (:color weekday)
-               (color/hsl->rgb)
-               (color/rgb->hex))
+           :fill (:color weekday)
            :text-anchor "start"}
           (:title weekday)]))])
 
@@ -202,7 +200,8 @@
 
 (defn date-circle
   [{:keys [rect-width rect-height col row day]}]
-  (let [x-offset (- (rand 10) 5)
+  (let [weekday (nth weekdays col)
+        x-offset (- (rand 10) 5)
         y-offset (- (rand 10) 5)
         x (+ x-start
              (* col (+ rect-width x-gutter))
@@ -227,7 +226,8 @@
                      (svg/rotate (rand -90) tx ty)
                      (svg/translate 16 16))
         :x (svg/px x)
-        :y (svg/px y)}]
+        :y (svg/px y)
+        :fill (:color weekday)}]
 
      [:text
        {:x (svg/px x)
