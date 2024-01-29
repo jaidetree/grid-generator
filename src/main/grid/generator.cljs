@@ -12,8 +12,10 @@
       :xmlns "http://www.w3.org/2000/svg"
       :xmlnsXlink "http://www.w3.org/1999/xlink"
       :version "1.1"
-      :viewBox (str "0 0 " width " " height)}
-     (into [:defs] defs)
+      :viewBox (str "0 0 " width " " height)
+      :fill "#000"}
+     (for [[idx def] (map-indexed vector defs)]
+       [:<> {:key idx} def])
      [:g
       [:rect
        {:x "0"

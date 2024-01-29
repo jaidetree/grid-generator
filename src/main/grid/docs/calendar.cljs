@@ -14,13 +14,20 @@
 (def y-start  (* 5 16))
 
 (def weekdays
-  ["Sunday"
-   "Monday"
-   "Tuesday"
-   "Wednesday"
-   "Thursday"
-   "Friday"
-   "Saturday"])
+ [{:title "Sunday"
+   :color [0 50 50]}
+  {:title "Monday"
+   :color [40 50 50]}
+  {:title "Tuesday"
+   :color [80 50 50]}
+  {:title "Wednesday"
+   :color [120 50 50]}
+  {:title "Thursday"
+   :color [160 50 50]}
+  {:title "Friday"
+   :color [200 50 50]}
+  {:title "Saturday"
+   :color [240 100 60]}])
 
 (def border
   (-> (color/get :outline)
@@ -34,8 +41,7 @@
 
 (def weekend-bg
   (-> month-bg
-      (color/hue 40)
-      (color/saturate 15)
+      (color/saturate -15)
       (color/brightness 4)))
 
 (def date-box-bg
@@ -50,16 +56,19 @@
 
 (defn date->first-day-of-week
   [date]
-  (-> (doto (js/Date. date)
-        (.setDate 1))
-      (.getDay date)))
+  (let [date (js/Date. date)]
+    (doto date
+      (.setDate 1))
+    (.getDay date)))
 
 (defn date->days-in-month
   [date]
-  (-> (doto (js/Date. date)
-        (.setMonth (inc (.getMonth date)) 1)
-        (.setDate  (dec (.getDate date))))
-      (.getDate date)))
+  (let [date (js/Date. date)]
+    (doto date
+      (.setMonth (inc (.getMonth date)) 1)
+      (.setDate (dec (.getDate date)))
+      (println))
+    (.getDate date)))
 
 (defn format-month-name
   [date]
@@ -67,14 +76,25 @@
 
 (defn date-circle-symbol
   []
-  [:g
-   {:id "date-circle"}
-   [:circle
-    {:strokeWidth "1px"
-     :fill (color/get :teal)
-     :r (* 1 16)
-     :cx 0
-     :cy 0}]])
+  (let [x -12
+        y 14
+        r 16
+        d (* 1.5 r)]
+    [:g
+     {:id "date-circle"}
+     [:path
+      {:d (svg/path (svg/move-relative x y)
+                    (svg/arc-relative r r 0 1 1 d 0)
+                    "Z")
+       :fill (color/get :teal)}]
+     [:path
+      {:d (svg/path (svg/move-relative x y)
+                    (svg/arc-relative 32 60 0 0 1 d 0)
+                    "Z")
+       :fill (-> (color/get :teal)
+                 (color/hue -180)
+                 (color/saturate -40)
+                 (color/brightness 50))}]]))
 
 (defn date-box-symbol
   []
@@ -152,19 +172,23 @@
   [{:keys [rect-width]}]
   [:g
     (for [col (range 0 7)]
-      [:text
-        {:key col
-         :x (+ x-start
-               (* col (+ rect-width x-gutter))
-               8)
-         :y (+ y-start
-               (* 1.5 16))
-         :font-family "OperatorMono Nerd Font"
-         :font-size "18px"
-         :font-style "italic"
-         :fill (color/get :pink)
-         :text-anchor "start"}
-        (nth weekdays col)])])
+      (let [weekday (nth weekdays col)]
+        [:text
+          {:key col
+           :x (+ x-start
+                 (* col (+ rect-width x-gutter))
+                 8)
+           :y (+ y-start
+                 (* 1.5 16))
+           :font-family "OperatorMono Nerd Font"
+           :font-size "18px"
+           :font-style "italic"
+           :fill (color/get :pink)
+           #_(-> (:color weekday)
+               (color/hsl->rgb)
+               (color/rgb->hex))
+           :text-anchor "start"}
+          (:title weekday)]))])
 
 (defn date-box
   [{:keys [rect-width rect-height idx col row]}]
@@ -192,12 +216,16 @@
         ty (+ y 16)]
     [:g
      {:transform (svg/transform
-                   (svg/rotate (- (rand 40) 20) tx ty)
-                   (svg/translate tx ty)
-                   (svg/scale (+ 1 (rand 0.25)))
-                   (svg/translate (* -1 tx) (* -1 ty)))}
+                   (svg/rotate (- (rand 30) 15) tx ty)
+                   #_(svg/translate tx ty)
+                   #_(svg/scale (+ 1 (rand 0.25)))
+                   #_(svg/translate (* -1 tx) (* -1 ty)))}
      [:use
        {:href "#date-circle"
+        :transform (svg/transform
+                     (svg/translate -16 -16)
+                     (svg/rotate (rand -90) tx ty)
+                     (svg/translate 16 16))
         :x (svg/px x)
         :y (svg/px y)}]
 
@@ -205,7 +233,7 @@
        {:x (svg/px x)
         :y (svg/px (+ 4 y))
         :font-family "OperatorMono Nerd Font"
-        :font-size   "14px"
+        :font-size   "16px"
         :font-style  "italic"
         :fill        (color/get :dark-grape)
         :text-anchor "middle"}

@@ -50,7 +50,7 @@
   [height]
   (str "V" height))
 
-(defn v-line-local
+(defn v-line-relative
   [height]
   (str "v" height))
 
@@ -62,11 +62,11 @@
   ([rx ry x-axis-rotation large-arc-flag sweep-flag x y]
    (s/join " " ["A" rx ry x-axis-rotation large-arc-flag sweep-flag x y])))
 
-(defn arc-local
+(defn arc-relative
   ([r dx dy]
-   (arc-local r r 0 0 1 dx dy))
+   (arc-relative r r 0 0 1 dx dy))
   ([rx ry dx dy]
-   (arc-local rx ry 0 0 1 dx dy))
+   (arc-relative rx ry 0 0 1 dx dy))
   ([rx ry x-axis-rotation large-arc-flag sweep-flag dx dy]
    (s/join " " ["a" rx ry x-axis-rotation large-arc-flag sweep-flag dx dy])))
 
@@ -76,7 +76,7 @@
                          (str x2 " " y2)
                          (str x " " y)])))
 
-(defn curve-local
+(defn curve-relative
   [dx1 dy1 dx2 dy2 dx dy]
   (str "c" (s/join ", " [(str dx1 " " dy1)
                          (str dx2 " " dy2)
@@ -87,8 +87,10 @@
   (s/join " " parts))
 
 (defn rotate
-  [angle x y]
-  (str "rotate(" (s/join " " [angle x y]) ")"))
+  ([angle]
+   (str "rotate(" angle ")"))
+  ([angle x y]
+   (str "rotate(" (s/join " " [angle x y]) ")")))
 
 (defn translate
   [x & [y]]
@@ -113,17 +115,17 @@
   (let [[tl tr bl br] (normalize-corner-radius r)]
     [:path
      (-> props
-         (dissoc :r
-          (merge
-            {:d (path (move   (+ x tl) y)
-                      (h-line (+ x (- width tr)))
-                      (arc-local tr tr tr)
-                      (v-line (+ y (- height br)))
-                      (arc-local br (* -1 br) br)
-                      (h-line (+ x bl))
-                      (arc-local bl (* -1 bl) (* -1 bl))
-                      (v-line (+ y tl))
-                      (arc-local tl tl (* -1 tl)))})))]))
+         (dissoc :r)
+         (merge
+           {:d (path (move   (+ x tl) y)
+                     (h-line (+ x (- width tr)))
+                     (arc-relative tr tr tr)
+                     (v-line (+ y (- height br)))
+                     (arc-relative br (* -1 br) br)
+                     (h-line (+ x bl))
+                     (arc-relative bl (* -1 bl) (* -1 bl))
+                     (v-line (+ y tl))
+                     (arc-relative tl tl (* -1 tl)))}))]))
 
 (defn swoosh
   [{:keys [curve] :as props}]
@@ -133,7 +135,7 @@
          (dissoc :curve)
          (merge
            {:d (path (move x y)
-                     (curve-local dx1 dy1 dx2 dy2 dx dy))}))]))
+                     (curve-relative dx1 dy1 dx2 dy2 dx dy))}))]))
 
 (defn grid-pattern
   [{:keys [id size color]}]
