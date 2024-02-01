@@ -3,6 +3,7 @@
     [clojure.string :as s]
     [grid.presets :as presets]
     [grid.color :as color]
+    [grid.constants :refer [weekdays]]
     [grid.svg :as svg]))
 
 
@@ -13,24 +14,6 @@
 (def y-gutter (* 0 16))
 (def x-start  (* 2 16))
 (def y-start  (* 5 16))
-
-(def weekday-color-interval (/ 260 7)) ;; Covers red to blue
-
-(def weekdays
- (->> [{:title "Sunday"}
-       {:title "Monday"}
-       {:title "Tuesday"}
-       {:title "Wednesday"}
-       {:title "Thursday"}
-       {:title "Friday"}
-       {:title "Saturday"}]
-      (map-indexed
-        (fn [idx m]
-          (assoc
-            m :color
-            (-> [(* idx weekday-color-interval) 80 60]
-                (color/hsl->rgb)
-                (color/rgb->hex)))))))
 
 (def border
   (-> (color/get :outline)
@@ -353,20 +336,26 @@
                 [presets/outline-layer   props]
                 [presets/title-layer     props title]]}))
 
+(defn cmd-current-month
+  []
+  [(doc)])
+
+(defn cmd-months
+  [year-month-pairs]
+  (->> year-month-pairs
+       (map js/Number)
+       (partition 2)
+       (map (fn [[year month]]
+              (doc year (dec month))))))
+
+(defn cmd-full-year
+  [year]
+  (for [month (range 0 11)]
+     (map #(doc year month))))
+
 (defn -main
   [& args]
-  (cond (empty? args)
-        [(doc)]
-
-        (= (second args) "year")
-        (let [[year] args]
-          (for [month (range 0 11)]
-            (map #(doc year month))))
-
-        :else
-        (->> args
-             (map js/Number)
-             (partition 2)
-             (map (fn [[year month]]
-                    (doc year (dec month)))))))
+  (cond (empty? args)           (cmd-current-month)
+        (= (second args) "all") (cmd-full-year (first args))
+        :else                   (cmd-months args)))
 

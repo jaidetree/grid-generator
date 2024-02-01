@@ -5,7 +5,7 @@
 
 (defn generate-svg
   [{:keys [props defs children]}]
-  (let [{:keys [width height]} props]
+  (let [{:keys [width height background]} props]
     [:svg
      {:width (svg/px width)
       :height (svg/px height)
@@ -22,7 +22,7 @@
         :y "0"
         :width  "100%"
         :height "100%"
-        :fill   (color/get :background)}]
+        :fill   (or background (color/get :background))}]
       (into [:g] children)]]))
 
 

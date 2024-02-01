@@ -71,8 +71,8 @@
   (let [ns (symbol (str "grid.docs." class-name))]
    (p/do
      (require ns)
-     (let [generate-docs (ns-resolve ns '-main)
-           docs          (apply generate-docs args)]
+     (p/let [generate-docs (ns-resolve ns '-main)
+             docs          (apply generate-docs args)]
        (p/doseq [doc docs]
          (println (str "Generating doc " (->> (:file doc)
                                               (.basename path))))
