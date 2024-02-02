@@ -54,6 +54,14 @@
   [height]
   (str "v" height))
 
+(defn line
+  [x y]
+  (str "L" x "," y))
+
+(defn line-relative
+  [x y]
+  (str "l" x "," y))
+
 (defn arc
   ([r x y]
    (arc r r 0 0 0 x y))
