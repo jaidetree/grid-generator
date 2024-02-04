@@ -33,10 +33,10 @@
          :icon  "moon"}
         {:title "Exercise"
          :icon  "dumbbell"}
+        {:title "Gaming"
+         :icon  "gamepad-modern"}
         {:title "Read"
-         :icon  "book-open-cover"}
-        {:title "Game"
-         :icon  "gamepad-modern"}]
+         :icon  "book-open-cover"}]
        (map-indexed vector)
        (mapv
          (fn [[idx m]]
@@ -104,13 +104,36 @@
     :y y-start
     :width (* 16 16)
     :height (* 4 16)
-    :fill "none" #_(-> (color/get :pink)
-                      (color/saturate -75)
-                      (color/brightness -55))}])
+    :fill (-> (color/get :dark-grape)
+              (color/saturate -10)
+              (color/brightness 5))
+    #_(-> (color/get :pink)
+         (color/saturate -75)
+         (color/brightness -55))}])
+
+(def schedule-fill-color
+  (-> (color/get :dark-grape)
+      (color/saturate -20)
+      (color/brightness 20)))
 
 (defn schedule-fill
   []
   [:g
+   [svg/rounded-rect
+    {:r [10 10 0 0]
+     :x (+ x-start
+           (* 30 16)
+           x-gutter)
+     :y (+ y-start
+           (* 16 16)
+           y-gutter)
+     :width  (* 16 16)
+     :height (* 3 16)
+     :fill   schedule-fill-color
+     #_#_
+     :fill   (-> (color/get :dark-grape)
+                 (color/saturate 5)
+                 (color/brightness 10))}]
    [svg/rounded-rect
     {:r [0 0 10 10]
      :x (+ x-start
@@ -162,7 +185,9 @@
         :y y-start
         :width (* 16 16)
         :height (* 4 16)
-        :stroke (color/get :teal)
+        :stroke (-> border
+                    (color/saturate 5)
+                    (color/brightness 5))
         :fill "none"}]
      [:text
       {:x (+ x-start
@@ -174,7 +199,7 @@
        :fontSize   "14px"
        :fontStyle  "italic"
        :textAnchor "start"
-       :fill (color/get :pink) #_(-> border
+       :fill (color/get :teal) #_(-> border
                                      (color/brightness 10))}
       (str "How was today?")]
      [:circle
@@ -184,7 +209,7 @@
        :cy (+ y-start
               (* 2 16))
        :r (* 1.5 16)
-       :fill "none"
+       :fill (color/get :dark-grape)
        :stroke border}]
      [mood-sticker
       {:x (+ x-start
@@ -323,12 +348,15 @@
            y-gutter)
      :width  (* 16 16)
      :height (* 3 16)
-     :stroke "none"
-     :fill  (-> [15 40 30]
-                (color/hsl->rgb)
-                (color/rgb->hex)
-                #_(color/saturate -70)
-                #_(color/brightness -30))}]
+     :stroke border
+     :fill schedule-fill-color
+     #_#_
+     :fill "none"
+     #_#_
+     :fill  "none" #_(-> (color/get :dark-grape)
+                         #_(color/hue 5)
+                         (color/saturate 10)
+                         (color/brightness 10))}]
    [svg/rounded-rect
     {:r [10 10 10 10]
      :x (+ x-start
@@ -346,13 +374,14 @@
            (* 37.5 16)
            x-gutter)
      :y (+ y-start
-           (* 17.75 16)
-           y-gutter)
+           (* 18 16)
+           y-gutter
+           -2)
      :fontFamily "OperatorMono Nerd Font"
      :fontStyle  "italic"
      :fontSize   "18px"
      :text-anchor "middle"
-     :fill (color/get :bone)}
+     :fill (color/get :teal)}
     "Schedule"]
    [:g
     (for [row (range 0 7)]
@@ -369,9 +398,9 @@
         :fontFamily "OperatorMono Nerd Font"
         :fontSize   "18px"
         :text-anchor "middle"
-        :fill (-> border
-                  (color/saturate 10)
-                  (color/brightness 20))}
+        :fill (-> (color/get :pink)
+                  #_(color/saturate 10)
+                  #_(color/brightness 20))}
        ":"])]
    #_
    [svg/rounded-rect
@@ -386,6 +415,64 @@
        :height (* 15 16)
        :stroke border
       :fill "none"}]])
+
+(defn wavy-line
+  [{:keys [x y segments stroke stroke-width fill]}]
+  [:path
+   {:stroke stroke
+    :stroke-width stroke-width
+    :fill fill
+    :stroke-linecap "round"
+    :d (apply
+         svg/path
+         (svg/move x y)
+         (repeat segments (svg/curve-relative 16 16 16 -16 32 0)))}])
+
+(defn circle-cluster
+  [{:keys [n max-radius min-radius x-jitter y-jitter cx cy]}]
+  [:g
+   (for [i (range 0 n)]
+     (let [x-offset (- (rand x-jitter) (/ x-jitter 2))
+           y-offset (- (rand y-jitter) (/ y-jitter 2))
+           r (+ (rand (- max-radius min-radius)) min-radius)]
+       [:circle
+        {:key i
+         :cx (+ cx x-offset)
+         :cy (+ cy y-offset)
+         :r r
+         :fill (color/get :pink)}]))])
+
+(defn corner-circle-cluster
+  [{:keys [x y]}]
+  [:g
+   [circle-cluster
+    {:n 12
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 4 16)
+     :y-jitter (* 1 16)
+     :cx (+ x
+            (* -2 16))
+     :cy y}]
+   [circle-cluster
+    {:n 12
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 0.5 16)
+     :y-jitter (* 3 16)
+     :cx x
+     :cy (+ y
+            (* 2 16))}]
+   [circle-cluster
+    {:n 8
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 2 16)
+     :y-jitter (* 2 16)
+     :cx (+ x
+            (* -1 16))
+     :cy (+ y
+            (* 1 16))}]])
 
 (defn tasks
   []
@@ -422,6 +509,39 @@
      :text-anchor "start"
      :fill (color/get :pink)}
     (str "Work Tasks")]
+   [circle-cluster
+    {:n 12
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 4 16)
+     :y-jitter (* 1.5 16)
+     :cx (+ x-start
+            (* 27 16))
+     :cy (+ y-start
+            (* 1 16))}]
+   [wavy-line
+    {:x (+ x-start
+           (* 9 16))
+     :y (+ y-start
+           (* 1 16))
+     :segments 10
+     :stroke (color/get :teal)
+     :fill "none"}]
+   [circle-cluster
+    {:n 12
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 6 16)
+     :y-jitter (* 1.5 16)
+     :cx (+ x-start
+            (* 26 16))
+     :cy (+ y-start
+            (* 1 16))}]
+   #_
+   [corner-circle-cluster
+    {:x (+ x-start
+           (* 30 16))
+     :y y-start}]
    [:line
     {:x1 (+ x-start
              (* 0 16))
@@ -460,6 +580,48 @@
      :text-anchor "start"
      :fill (color/get :pink)}
     (str "Personal Tasks & Goals")]
+   [circle-cluster
+    {:n 12
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 4 16)
+     :y-jitter (* 1.5 16)
+     :cx (+ x-start
+            (* 27 16))
+     :cy (+ y-start
+            (* work-tasks 2 16)
+            tasks-gap
+            (* 4 16))}]
+   [wavy-line
+    {:x (+ x-start
+           (* 15 16))
+     :y (+ y-start
+           (* work-tasks 2 16)
+           tasks-gap
+           (* 4 16))
+     :segments 7
+     :stroke (color/get :teal)
+     :fill "none"}]
+   [circle-cluster
+    {:n 12
+     :max-radius 4
+     :min-radius 1
+     :x-jitter (* 6 16)
+     :y-jitter (* 1.5 16)
+     :cx (+ x-start
+            (* 26 16))
+     :cy (+ y-start
+            (* work-tasks 2 16)
+            tasks-gap
+            (* 4 16))}]
+   #_
+   [corner-circle-cluster
+    {:x (+ x-start
+           (* 30 16))
+     :y (+ y-start
+           (* work-tasks 2 16)
+           tasks-gap
+           (* 3 16))}]
    [:line
     {:x1 (+ x-start
              (* 0 16))
@@ -523,7 +685,7 @@
            1)
      :fontFamily "OperatorMono Nerd Font"
      :fontStyle "italic"
-     :fontSize  "18px"
+     :fontSize  "16px"
      :text-anchor "start"
      :fill (color/get :pink)}
     (str (date->weekday date))]
@@ -533,14 +695,14 @@
            1)
      :fontFamily "OperatorMono Nerd Font"
      :fontStyle "italic"
-     :fontSize  "18px"
+     :fontSize  "16px"
      :text-anchor "end"
      :fill (color/get :teal)}
     (str (date->title date))]])
 
 (defn doc
   [& [date]]
-  (let [date (if (isa? date js/Date) date (js/Date.))
+  (let [date (if (instance? js/Date date) date (js/Date.))
         month-name (date->month-name date)
         date-str (date->iso-string date)
         props {:date  date
@@ -570,11 +732,32 @@
 
 (defn date->days-in-month
   [date]
-  (let [date (js/Date.)]
+  (let [date (js/Date. date)]
    (doto date
      (.setMonth (inc (.getMonth date)))
      (.setDate (dec  (.getDate date))))
    (.getDate date)))
+
+(defn normalize-weekdays
+  [dates]
+  (if (empty? dates)
+    (normalize-weekdays [(.toISOString (js/Date.))])
+    (for [date dates]
+      (let [date (js/Date. date)
+            weekday (.getDay date)]
+        (doto date
+          (.setDate (- (.getDate date) weekday)))))))
+
+(defn cmd-days-in-week
+  [[& dates]]
+  (for [date (normalize-weekdays dates)
+        weekday (range 0 7)]
+    (let [date (js/Date. (.getFullYear date)
+                         (.getMonth date)
+                         (+ (.getDate date)
+                            weekday))]
+
+      (doc date))))
 
 (defn cmd-days-in-month
   [[year month]]
@@ -595,7 +778,9 @@
 
 (defn -main
   [& args]
+  (println "args" args)
   (cond (zero? (count args)) [(doc)]
+        (= (first args) "week") (cmd-days-in-week (rest args))
         (= (first args) "month") (cmd-days-in-month (rest args))
         (= (first args) "year") (cmd-days-in-year   (second args))
         (= (count args) 1) [(doc (first args))]))
