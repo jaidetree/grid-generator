@@ -4,7 +4,8 @@
     [grid.presets :as presets]
     [grid.color :as color]
     [grid.constants :refer [weekdays]]
-    [grid.svg :as svg]))
+    [grid.svg :as svg]
+    [grid.utils.date :as date]))
 
 (def width (svg/in->px (* 2 8.5)))
 (def height (svg/in->px 11))
@@ -32,27 +33,6 @@
   (-> (color/get :dark-grape)
       (color/brightness 5)))
 
-(defn date->first-day-of-week
-  [date]
-  (let [date (js/Date. date)]
-    (doto date
-      (.setDate 1))
-    (.getDay date)))
-
-(defn date->days-in-month
-  [date]
-  (let [date (js/Date. date)]
-    (doto date
-      (.setMonth (inc (.getMonth date)) 1)
-      (.setDate (dec (.getDate date))))
-    (.getDate date)))
-
-(def date-display-formatter
-  (js/Intl.DateTimeFormat
-   "en-US"
-   #js {:month "long"
-        :day "numeric"}))
-
 (defn format-month-name
   [date]
   (.toLocaleDateString date "en-US" #js {:month "long"}))
@@ -63,45 +43,22 @@
                (inc (.getMonth date))
                (.getDate date)]))
 
-(defn add
-  [date unit x]
-  (let [date (js/Date. date)]
-    (case unit
-      :years (doto date)
-           (.setFullYear (+ x (.getYear date)))
-      :months (doto date
-                (.setMonth (+ x (.getMonth date))))
-      :days (doto date
-              (.setDate  (+ x (.getDate date)))))))
-
-(defn date->week
-  [date]
-  (let [weekday (.getDay date)
-        start (add date :days (* -1 weekday))
-        end (add start :days 6)]
-    [start end]))
-
 (defn parse-args
   [[start end]]
   (if (and start end)
     [start end]
-    (let [[start end] (date->week (doto (js/Date.)
-                                    (.setDate 1)))]
+    (let [[start end] (date/date->week (js/Date.))]
       [start end])))
-
-(defn format-date
-  [date]
-  (.format date-display-formatter date))
 
 (defn format-week-range
  [start end]
  (let [year-start (.getFullYear start)
        year-end (.getFullYear end)
        years-change (not= year-start year-end)]
-   (str (format-date start)
+   (str (date/date->month-day start)
         (when years-change (str ", " year-start))
         " – "
-        (format-date end)
+        (date/date->month-day end)
         (when years-change (str ", " year-end)))))
 
 (defn date-box-symbol
@@ -182,7 +139,7 @@
 
 (defn day-date
   [{:keys [rect-width day col]}]
-  (let [label (format-date day)
+  (let [label (date/date->month-day day)
         m (.getMonth day)
         d (.getDate day)]
     [:g
@@ -279,7 +236,7 @@
   [{:keys [start] :as props}]
   [:g
    (for [col (range 0 7)]
-    (let [day (add start :days col)
+    (let [day (date/add start :days col)
           props (merge props
                        {:idx col
                         :day day
@@ -371,23 +328,23 @@
   [dates]
   (for [date dates]
     (let [date (js/Date. date)
-          [start end] (date->week date)]
+          [start end] (date/date->week date)]
       #_[year (.toLocaleDateString start) (.toLocaleDateString end)]
       (doc start end))))
 
 (defn cmd-full-month
   [[year month]]
   (let [date (js/Date. year month 1)
-        first-weekday (date->first-day-of-week date)
-        date          (add date :days (* -1 first-weekday))
-        days-in-month (date->days-in-month date)
+        first-weekday (date/date->first-weekday-of-month date)
+        date          (date/add date :days (* -1 first-weekday))
+        days-in-month (date/date->days-in-month date)
         weeks (-> days-in-month
                   (+ first-weekday)
                   (/ 7)
                   (js/Math.ceil))]
     (for [i (range 0 weeks)]
-      (let [start (add date :days (* i 7))
-            end (add start :days 6)]
+      (let [start (date/add date :days (* i 7))
+            end (date/add start :days 6)]
         #_[(.getFullYear start) (.toLocaleDateString start) (.toLocaleDateString end)]
         (doc start end)))))
 
@@ -398,7 +355,7 @@
       (let [start (js/Date. (.getFullYear date)
                             (.getMonth date)
                             (* i 7))
-            end (add start :days 6)]
+            end (date/add start :days 6)]
           #_[(.toLocaleDateString start) (.toLocaleDateString end)]
           (doc start end)))))
 

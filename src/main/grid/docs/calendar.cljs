@@ -4,8 +4,8 @@
     [grid.presets :as presets]
     [grid.color :as color]
     [grid.constants :refer [weekdays]]
-    [grid.svg :as svg]))
-
+    [grid.svg :as svg]
+    [grid.utils.date :as date]))
 
 (def width (svg/in->px (* 2 8.5)))
 (def height (svg/in->px 11))
@@ -39,25 +39,6 @@
   (if (and year month)
     (js/Date. year month)
     (js/Date.)))
-
-(defn date->first-day-of-week
-  [date]
-  (let [date (js/Date. date)]
-    (doto date
-      (.setDate 1))
-    (.getDay date)))
-
-(defn date->days-in-month
-  [date]
-  (let [date (js/Date. date)]
-    (doto date
-      (.setMonth (inc (.getMonth date)) 1)
-      (.setDate (dec (.getDate date))))
-    (.getDate date)))
-
-(defn format-month-name
-  [date]
-  (.toLocaleDateString date "en-US" #js {:month "long"}))
 
 (defn date-box-symbol
   []
@@ -278,12 +259,15 @@
     :stroke border
     :fill "none"}])
 
+(comment
+  (date/date->first-weekday-of-month (js/Date.)))
+
 (defn create-props
   [{:keys [year month]}]
   (let [date (create-date year month)
-        first-weekday (date->first-day-of-week date)
-        days-in-month (date->days-in-month date)
-        month-name (format-month-name date)
+        first-weekday (date/date->first-weekday-of-month date)
+        days-in-month (date/date->days-in-month date)
+        month-name (date/date->month-name date)
         weeks (-> days-in-month
                   (+ first-weekday)
                   (/ 7)

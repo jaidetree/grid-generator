@@ -3,7 +3,8 @@
     [grid.constants :refer [weekdays]]
     [grid.svg :as svg]
     [grid.color :as color]
-    [grid.presets :as presets]))
+    [grid.presets :as presets]
+    [grid.utils.date :as date]))
 
 (def width (svg/in->px 8.5))
 (def height (svg/in->px 11))
@@ -44,31 +45,8 @@
                                (color/hsl->rgb)
                                (color/rgb->hex)))))))
 
-(defn date->month-name
-  [date]
-  (.toLocaleDateString date "en-US" #js {:month "long"}))
-
-(defn date->iso-string
-  [date]
-  (let [year (.getFullYear date)
-        month (inc (.getMonth date))
-        day  (.getDate date)]
-    (str year
-         "-" (.padStart (str month) 2 "0")
-         "-" (.padStart (str day) 2 "0"))))
-
-(defn date->title
-  [date]
-  (.toLocaleDateString date "en-US" #js {:year "numeric"
-                                         :month "long"
-                                         :day   "numeric"}))
-
-(defn date->weekday
-  [date]
-  (.toLocaleDateString date "en-US" #js {:weekday "long"}))
-
 (comment
-  (date->title (js/Date.)))
+  (date/date->full-str (js/Date.)))
 
 (defn tasks-fill
   []
@@ -106,10 +84,7 @@
     :height (* 4 16)
     :fill (-> (color/get :dark-grape)
               (color/saturate -10)
-              (color/brightness 5))
-    #_(-> (color/get :pink)
-         (color/saturate -75)
-         (color/brightness -55))}])
+              (color/brightness 5))}])
 
 (def schedule-fill-color
   (-> (color/get :dark-grape)
@@ -129,11 +104,7 @@
            y-gutter)
      :width  (* 16 16)
      :height (* 3 16)
-     :fill   schedule-fill-color
-     #_#_
-     :fill   (-> (color/get :dark-grape)
-                 (color/saturate 5)
-                 (color/brightness 10))}]
+     :fill   schedule-fill-color}]
    [svg/rounded-rect
     {:r [0 0 10 10]
      :x (+ x-start
@@ -160,8 +131,7 @@
       {:d (svg/path (svg/move x y)
                     (svg/arc-relative r r 0 1 1 d 0)
                     "Z")
-       :fill      fill
-       #_#_:fill (color/get :teal)}]
+       :fill      fill}]
      [:path
       {:d (svg/path (svg/move x y)
                     (svg/arc-relative (* 1.5 r) (* 2 r) 0 0 1 d 0)
@@ -199,8 +169,7 @@
        :fontSize   "14px"
        :fontStyle  "italic"
        :textAnchor "start"
-       :fill (color/get :teal) #_(-> border
-                                     (color/brightness 10))}
+       :fill (color/get :teal)}
       (str "How was today?")]
      [:circle
       {:cx (+ x-start
@@ -244,14 +213,7 @@
            y-gutter)
      :width  (* 16 16)
      :height (* 10 16)
-     #_#_
-     :stroke border
-     :fill "none"
-     #_#_
-     :fill   (-> (color/get :dark-grape)
-                 (color/hue 90)
-                 (color/saturate -5)
-                 (color/brightness 5))}]
+     :fill "none"}]
    (for [i (range 0 (count habits))]
      (let [habit (nth habits i)]
        [:g
@@ -349,14 +311,7 @@
      :width  (* 16 16)
      :height (* 3 16)
      :stroke border
-     :fill schedule-fill-color
-     #_#_
-     :fill "none"
-     #_#_
-     :fill  "none" #_(-> (color/get :dark-grape)
-                         #_(color/hue 5)
-                         (color/saturate 10)
-                         (color/brightness 10))}]
+     :fill schedule-fill-color}]
    [svg/rounded-rect
     {:r [10 10 10 10]
      :x (+ x-start
@@ -401,20 +356,7 @@
         :fill (-> (color/get :pink)
                   #_(color/saturate 10)
                   #_(color/brightness 20))}
-       ":"])]
-   #_
-   [svg/rounded-rect
-    {:r [0 0 10 10]
-       :x (+ x-start
-             (* 30 16)
-             x-gutter)
-       :y (+ y-start
-             (* 19 16)
-             y-gutter)
-       :width  (* 16 16)
-       :height (* 15 16)
-       :stroke border
-      :fill "none"}]])
+       ":"])]])
 
 (defn wavy-line
   [{:keys [x y segments stroke stroke-width fill]}]
@@ -441,38 +383,6 @@
          :cy (+ cy y-offset)
          :r r
          :fill (color/get :pink)}]))])
-
-(defn corner-circle-cluster
-  [{:keys [x y]}]
-  [:g
-   [circle-cluster
-    {:n 12
-     :max-radius 4
-     :min-radius 1
-     :x-jitter (* 4 16)
-     :y-jitter (* 1 16)
-     :cx (+ x
-            (* -2 16))
-     :cy y}]
-   [circle-cluster
-    {:n 12
-     :max-radius 4
-     :min-radius 1
-     :x-jitter (* 0.5 16)
-     :y-jitter (* 3 16)
-     :cx x
-     :cy (+ y
-            (* 2 16))}]
-   [circle-cluster
-    {:n 8
-     :max-radius 4
-     :min-radius 1
-     :x-jitter (* 2 16)
-     :y-jitter (* 2 16)
-     :cx (+ x
-            (* -1 16))
-     :cy (+ y
-            (* 1 16))}]])
 
 (defn tasks
   []
@@ -688,7 +598,7 @@
      :fontSize  "16px"
      :text-anchor "start"
      :fill (color/get :pink)}
-    (str (date->weekday date))]
+    (str (date/date->weekday-name date))]
    [:text
     {:x (- width 16)
      :y (- (* 2 16)
@@ -698,13 +608,13 @@
      :fontSize  "16px"
      :text-anchor "end"
      :fill (color/get :teal)}
-    (str (date->title date))]])
+    (str (date/date->full-str date))]])
 
 (defn doc
   [& [date]]
   (let [date (if (instance? js/Date date) date (js/Date.))
-        month-name (date->month-name date)
-        date-str (date->iso-string date)
+        month-name (date/date->month-name date)
+        date-str (date/date->iso-string date)
         props {:date  date
                :width width
                :height height
@@ -784,7 +694,3 @@
         (= (first args) "month") (cmd-days-in-month (rest args))
         (= (first args) "year") (cmd-days-in-year   (second args))
         (= (count args) 1) [(doc (first args))]))
-
-(comment
-  (date->month-name (js/Date.))
-  (date->iso-string (js/Date.)))
