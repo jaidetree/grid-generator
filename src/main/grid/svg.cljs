@@ -145,6 +145,28 @@
            {:d (path (move x y)
                      (curve-relative dx1 dy1 dx2 dy2 dx dy))}))]))
 
+(defn circle-cluster
+  [{:keys [n min-radius max-radius x-jitter y-jitter cx cy] :as props}]
+  [:g
+   (for [i (range 0 n)]
+     (let [x-offset (- (rand x-jitter) (/ x-jitter 2))
+           y-offset (- (rand y-jitter) (/ y-jitter 2))
+           r (+ (rand (- max-radius min-radius)) min-radius)]
+       [:circle
+        (merge
+          (dissoc props
+                  :n
+                  :max-radius
+                  :min-radius
+                  :x-jitter
+                  :y-jitter
+                  :cx
+                  :cy)
+          {:key i
+           :cx (+ cx x-offset)
+           :cy (+ cy y-offset)
+           :r r})]))])
+
 (defn grid-pattern
   [{:keys [id size color]}]
   [:pattern

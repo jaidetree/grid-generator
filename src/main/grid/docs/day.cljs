@@ -1,6 +1,6 @@
 (ns grid.docs.day
   (:require
-    [grid.constants :refer [weekdays]]
+    [grid.constants :refer [weekdays habits]]
     [grid.svg :as svg]
     [grid.color :as color]
     [grid.presets :as presets]
@@ -25,25 +25,6 @@
       (color/saturate -10)
       (color/brightness 10)))
 
-(def habit-color-interval (/ 240 5))
-
-(def habits
-  (->> [{:title "Meditate AM"
-         :icon  "sunrise"}
-        {:title "Meditate PM"
-         :icon  "moon"}
-        {:title "Exercise"
-         :icon  "dumbbell"}
-        {:title "Gaming"
-         :icon  "gamepad-modern"}
-        {:title "Read"
-         :icon  "book-open-cover"}]
-       (map-indexed vector)
-       (mapv
-         (fn [[idx m]]
-           (assoc m :color (-> [(* idx habit-color-interval) 50 50]
-                               (color/hsl->rgb)
-                               (color/rgb->hex)))))))
 
 (comment
   (date/date->full-str (js/Date.)))
@@ -371,18 +352,11 @@
          (repeat segments (svg/curve-relative 16 16 16 -16 32 0)))}])
 
 (defn circle-cluster
-  [{:keys [n max-radius min-radius x-jitter y-jitter cx cy]}]
-  [:g
-   (for [i (range 0 n)]
-     (let [x-offset (- (rand x-jitter) (/ x-jitter 2))
-           y-offset (- (rand y-jitter) (/ y-jitter 2))
-           r (+ (rand (- max-radius min-radius)) min-radius)]
-       [:circle
-        {:key i
-         :cx (+ cx x-offset)
-         :cy (+ cy y-offset)
-         :r r
-         :fill (color/get :pink)}]))])
+  [props]
+  [svg/circle-cluster
+   (merge
+     props
+     {:fill (color/get :pink)})])
 
 (defn tasks
   []
