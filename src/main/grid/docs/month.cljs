@@ -13,7 +13,7 @@
 (def y-start (* 6 16))
 
 (def habits-height (* 9 16))
-(def time-width (* 24 2 16))
+(def time-width (* 25 2 16))
 
 (def border
   (-> (color/get :outline)
@@ -54,7 +54,8 @@
   [:g
    (for [row (range 0 days-in-month 2)]
      [:rect
-      {:x x-start
+      {:key row
+       :x x-start
        :y (+ y-start
              habits-height
              -16
@@ -184,7 +185,7 @@
 (defn hours
   [{:keys [days-in-month]}]
   [:g
-   (for [i (range 0 23)]
+   (for [i (range 0 24)]
      [:g
       {:key i}
       [:text
@@ -203,7 +204,7 @@
         :fill border}
        (str (cond (= i 0)  "12a"
                   (= i 12) "12p"
-                  (> i 12) (- (inc i) 12)
+                  (> i 12) (- i 12)
                   :else    i))]
       [:line
        {:x1 (+ x-start
@@ -229,7 +230,7 @@
             (* -2 16))
      :x2 (+ x-start
             (* 3 16)
-            (* 23 2 16))
+            (* 24 2 16))
      :y2 (+ y-start
             habits-height
             (* -2 16))
@@ -417,12 +418,12 @@
          "Side-projects"]])])
 
 (defn decorations
-  []
+  [{:keys [days-in-month]}]
   [:g
    [svg/circle-cluster
-    {:n 32
+    {:n 42
      :min-radius 1.5
-     :max-radius 10
+     :max-radius 8
      :x-jitter (- time-width 32)
      :y-jitter (* 6 16)
      :cx (+ x-start
@@ -431,15 +432,30 @@
      :cy (+ y-start
             (* 3.5 16))
      :fill (color/get :pink)}]
+   [svg/circle-cluster
+    {:n 32
+     :min-radius 1.5
+     :max-radius 10
+     :x-jitter (- width 32)
+     :y-jitter (* 6 16)
+     :cx (+ x-start
+            (/ width 2))
+     :cy (+ y-start
+            habits-height
+            (* (inc days-in-month) 16)
+            (* 4 16))
+     :fill (color/get :pink)}]
    [svg/swoosh
     {:curve [(+ x-start
-                (* 4 16))
+                16)
              (+ y-start
-                (* 3.5 16))
-             400 100
-             400 -100
-             (+ time-width
-                (* -5 16))
+                habits-height
+                (* (inc days-in-month) 16)
+                (* 3 16))
+             500 80
+             500 -80
+             (+ width
+                (* -4 16))
              0]
 
      :stroke-width 24
@@ -450,13 +466,14 @@
     {:n 32
      :min-radius 1.5
      :max-radius 10
-     :x-jitter (- time-width 32)
+     :x-jitter (- width 32)
      :y-jitter (* 6 16)
      :cx (+ x-start
-            (* 2 16)
-            (/ time-width 2))
+            (/ width 2))
      :cy (+ y-start
-            (* 3.5 16))
+            habits-height
+            (* (inc days-in-month) 16)
+            (* 4 16))
      :fill (color/get :pink)}]])
 
 (defn create-props
