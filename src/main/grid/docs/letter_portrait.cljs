@@ -9,67 +9,57 @@
 
 (def x-margin 10)
 (def y-margin 10)
-(def rect-height (-> height
-                     (- (* 2 y-margin))))
-
-(comment
-  width
-  (-> width
-      (- (* 2 x-margin))
-      (/ 16)
-      (js/Math.floor))
-  (-> width
-      (- (* 2 x-margin))
-      (/ 8)
-      (js/Math.floor)))
-
 
 (defn grid
   [{:keys [width height
            x-margin y-margin
            x-start y-start
            spacing color]
-    :or {x-start 0
-         y-start 0}}]
+    :or {x-start 16
+         y-start 16}}]
   (let [rows (-> height
                  (- (* 2 y-margin))
                  (/ spacing)
-                 (js/Math.floor))
+                 (dec)
+                 (+ 0.5)
+                 (js/Math.ceil))
         cols (-> width
                  (- (* 2 x-margin))
                  (/ spacing)
-                 (js/Math.floor))
-        y-offset (/ (- height
-                       (* spacing rows))
-                    2)
+                 (dec)
+                 (+ 0.5)
+                 (js/Math.ceil))]
 
-        x-offset (/ (- width
-                       (* spacing cols))
-                    2)]
-    [:g
-     (for [row (range y-start rows)]
+    ;; @debug
+    (println {:width width
+              :height height
+              :rows rows
+              :cols cols})
+
+    [:g.grid
+     (for [row (range 0 rows)]
       [:line
        {:key row
         :x1 x-margin
-        :y1 (+ 16
+        :y1 (+ y-start
                (* row spacing))
         :x2 (- width x-margin)
-        :y2 (+ 16
+        :y2 (+ y-start
                (* row spacing))
         :fill "none"
         :stroke color}])
 
-     (for [col (range x-start cols)]
-      [:line
-       {:key col
-        :x1 (+ 16
-               (* col spacing))
-        :y1 y-margin
-        :x2 (+ 16
-               (* col spacing))
-        :y2 (- height y-margin)
-        :fill "none"
-        :stroke color}])]))
+     (for [col (range 0 cols)]
+       [:line
+        {:key col
+         :x1 (+ x-start
+                (* col spacing))
+         :y1 y-margin
+         :x2 (+ x-start
+                (* col spacing))
+         :y2 (- height y-margin)
+         :fill "none"
+         :stroke color}])]))
 
 
 (defn subgrid
@@ -77,8 +67,8 @@
   [grid
    {:width width
     :height height
-    :x-margin 10
-    :y-margin 10
+    :x-margin y-margin
+    :y-margin x-margin
     :spacing  8
     :color    (color/get :subgrid)}])
 
@@ -87,8 +77,8 @@
   [grid
    {:width width
     :height height
-    :x-margin 10
-    :y-margin 10
+    :x-margin x-margin
+    :y-margin y-margin
     :spacing  16
     :color    (color/get :basegrid)}])
 
@@ -106,30 +96,30 @@
            color]
     :or {x-margin 10
          y-margin 10
-         x-start 0
-         y-start 0
-         radius  1.5}}]
-  #_
+         x-start 16
+         y-start 16
+         radius  1.5
+         spacing 16}}]
   (let [rows (-> height
                  (- (* 2 y-margin))
                  (/ spacing)
-                 (js/Math.round))
+                 (dec)
+                 (+ 0.5)
+                 (js/Math.ceil))
         cols (-> width
                  (- (* 2 x-margin))
                  (/ spacing)
-                 (js/Math.round))
-        y-offset (- spacing y-margin)
-        x-offset (- spacing x-margin)]
+                 (dec)
+                 (+ 0.5)
+                 (js/Math.ceil))]
     [:g
-     (for [row (range y-start rows)
-           col (range x-start cols)]
+     (for [row (range 0 rows)
+           col (range 0 cols)]
       [:circle
        {:key row
-        :cx (+ x-margin
-               x-offset
+        :cx (+ x-start
                (* col spacing))
-        :cy (+ y-margin
-               y-offset
+        :cy (+ y-start
                (* row spacing))
         :r radius
         :fill (or color (color/get :dots))}])]))

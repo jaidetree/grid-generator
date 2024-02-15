@@ -1,5 +1,6 @@
 (ns grid.generator
   (:require
+    [clojure.pprint :refer [pprint]]
     [grid.svg :as svg]
     [grid.color :as color]))
 
@@ -13,15 +14,17 @@
       :xmlnsXlink "http://www.w3.org/1999/xlink"
       :version "1.1"
       :viewBox (str "0 0 " width " " height)
-      :fill "#000"}
-     (for [[idx def] (map-indexed vector defs)]
-       [:<> {:key idx} def])
+      :style {:background "#000"}}
+     (into
+       [:defs
+        {}]
+       defs)
      [:g
       [:rect
        {:x "0"
         :y "0"
-        :width  "100%"
-        :height "100%"
+        :width  (svg/px width)
+        :height (svg/px height)
         :fill   (or background (color/get :background))}]
       (into [:g] children)]]))
 

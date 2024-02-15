@@ -139,7 +139,7 @@
                              (brightness 20))
              :basegrid   (-> (:dark-grape colors)
                              (saturate -50)
-                             (brightness 15))
+                             (brightness 10))
              :subgrid    (-> (:dark-grape colors)
                              (hue -20)
                              (saturate -5)
