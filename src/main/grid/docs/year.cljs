@@ -189,10 +189,7 @@
   (let [props (create-props)]
     {:file     "journal/Year"
      :props    props
-     :defs     [[presets/basegrid-pattern]
-                [presets/subgrid-pattern]
-                [presets/dots-pattern]
-                [month-symbol            props]
+     :defs     [[month-symbol            props]
                 [month-fill-symbol       props]]
 
      :children [[:g

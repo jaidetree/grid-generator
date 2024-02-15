@@ -178,10 +178,7 @@
   (let [props (create-props)]
     {:file "journal/Projects"
      :props props
-     :defs [[presets/basegrid-pattern]
-            [presets/subgrid-pattern]
-            [presets/dots-pattern]
-            [project-state-box-symbol    props]]
+     :defs [[project-state-box-symbol    props]]
      :children [[:g
                  [swooshes               props]
                  [project-state-fills    props]]

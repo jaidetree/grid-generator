@@ -595,9 +595,7 @@
                :weekday (.getDay date)}]
     {:file (str "journal/" month-name "/Day " date-str)
      :props props
-     :defs     [[presets/subgrid-pattern]
-                [presets/basegrid-pattern]
-                [presets/dots-pattern]]
+     :defs     []
      :children [[:g
                  [schedule-fill          props]
                  [mood-fill              props]
@@ -607,7 +605,7 @@
                  [presets/basegrid-layer props]
                  [presets/dots-layer     props]]
                 [tasks                   props]
-                [mood-box                    props]
+                [mood-box                props]
                 [daily-habits            props]
                 [schedule                props]
                 [title                   props]
@@ -662,7 +660,6 @@
 
 (defn -main
   [& args]
-  (println "args" args)
   (cond (zero? (count args)) [(doc)]
         (= (first args) "week") (cmd-days-in-week (rest args))
         (= (first args) "month") (cmd-days-in-month (rest args))

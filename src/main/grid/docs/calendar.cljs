@@ -300,10 +300,7 @@
 
     {:file     (str "journal/" month-name "/" month-name " Calendar")
      :props    props
-     :defs     [[presets/basegrid-pattern]
-                [presets/subgrid-pattern]
-                [presets/dots-pattern]
-                [date-box-symbol]
+     :defs     [[date-box-symbol]
                 [date-box-tr-symbol]]
      :children [[fill-weekday-columns    props]
                 [:g

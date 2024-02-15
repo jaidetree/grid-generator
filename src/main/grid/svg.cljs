@@ -167,38 +167,13 @@
            :cy (+ cy y-offset)
            :r r})]))])
 
-(defn grid-pattern
-  [{:keys [id size color]}]
-  [:pattern
-   {:id id
-    :patternUnits "userSpaceOnUse"
-    :width size
-    :height size}
-   [:line
-    {:x1 "0"
-     :y1 "0"
-     :x2 "0"
-     :y2 size
-     :stroke color
-     :strokeWidth "1px"
-     :fill "none"}]
-   [:line
-    {:x1 "0"
-     :y1 size
-     :x2 size
-     :y2 size
-     :stroke color
-     :strokeWidth "1px"
-     :fill "none"}]])
-
-(defn grid-layer
-  [{:keys [width height fill-id padding]}]
-  [:rect
-    {:x (px padding)
-     :y (px padding)
-     :width (- width (* 2 padding))
-     :height (- height (* 2 padding))
-     :fill (str "url(#" fill-id ")")}])
+(defn calc-dividers
+  [{:keys [total margin spacing]}]
+  (-> total
+      (- (* 2 margin))
+      (/ spacing)
+      (- 0.5)
+      (js/Math.ceil)))
 
 (comment
   (seq? [10 10])

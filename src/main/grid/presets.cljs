@@ -1,60 +1,110 @@
 (ns grid.presets
   (:require
-    [grid.svg :refer [grid-layer grid-pattern grid-layer]]
+    [grid.svg :refer [calc-dividers]]
     [grid.color :as color]))
 
-(defn dots-pattern
-  []
-  [:pattern#dots
-   {:patternUnits "userSpaceOnUse"
-    :width "16px"
-    :height "16px"}
-   [:circle
-    {:cx "8px"
-     :cy "8px"
-     :r "1.5px"
-     #_#_:fill "#5C414F"
-     :fill (color/get :dots)}]])
+(def x-margin 10)
+(def y-margin 10)
 
-(defn basegrid-pattern
-  []
-  (grid-pattern
-    {:id "basegrid"
-     :size "16px"
-     :color (color/get :basegrid)}))
+(defn grid
+  [{:keys [width height
+           x-margin y-margin
+           x-start y-start
+           spacing color]
+    :or {x-start 16
+         y-start 16}}]
+  (let [rows (calc-dividers
+               {:total height
+                :margin y-margin
+                :spacing spacing})
+        cols (calc-dividers
+               {:total width
+                :margin x-margin
+                :spacing spacing})]
 
-(defn subgrid-pattern
-  []
-  (grid-pattern
-    {:id "subgrid"
-     :size "8px"
-     :color (color/get :subgrid)}))
+    #_
+    (println {:width width
+              :height height
+              :rows rows
+              :cols cols})
 
-(defn basegrid-layer
-  [{:keys [width height]}]
-  (grid-layer
-    {:fill-id "basegrid"
-     :width   width
-     :height  height
-     :padding 10}))
+    [:g.grid
+     (for [row (range 0 rows)]
+      [:line
+       {:key row
+        :x1 x-margin
+        :y1 (+ y-start
+               (* row spacing))
+        :x2 (- width x-margin)
+        :y2 (+ y-start
+               (* row spacing))
+        :fill "none"
+        :stroke color}])
+
+     (for [col (range 0 cols)]
+       [:line
+        {:key col
+         :x1 (+ x-start
+                (* col spacing))
+         :y1 y-margin
+         :x2 (+ x-start
+                (* col spacing))
+         :y2 (- height y-margin)
+         :fill "none"
+         :stroke color}])]))
+
 
 (defn subgrid-layer
-  [{:keys [width height]}]
-  (grid-layer
-    {:fill-id "subgrid"
-     :width   width
-     :height  height
-     :padding 10}))
+  [{:keys [width height x-margin y-margin]
+    :or {x-margin x-margin
+         y-margin y-margin}}]
+  [grid
+   {:width width
+    :height height
+    :x-margin y-margin
+    :y-margin x-margin
+    :spacing  8
+    :color    (color/get :subgrid)}])
+
+(defn basegrid-layer
+  [{:keys [width height x-margin y-margin]
+    :or {x-margin x-margin
+         y-margin y-margin}}]
+  [grid
+   {:width width
+    :height height
+    :x-margin y-margin
+    :y-margin x-margin
+    :spacing  16
+    :color    (color/get :basegrid)}])
 
 (defn dots-layer
-  [{:keys [width height]}]
-  [:rect
-    {:x         "0px"
-     :y         "0px"
-     :width     (- width (* 2 8.25))
-     :height    (- height (* 2 8))
-     :transform "translate(8.25, 8)"
-     :fill      "url(#dots)"}])
+  [{:keys [width height
+           x-margin y-margin
+           spacing radius
+           color]
+    :or {x-margin x-margin
+         y-margin y-margin
+         spacing 16
+         radius 3}}]
+  (let [rows (calc-dividers
+               {:total height
+                :margin y-margin
+                :spacing spacing})]
+    [:g
+     (for [row (range 0 rows)]
+      [:line
+       {:key row
+        :x1 spacing
+        :y1 (+ spacing
+               (* row spacing))
+        :x2 (- width x-margin)
+        :y2 (+ spacing
+               (* row spacing))
+        :stroke-width radius
+        :stroke-linecap "round"
+        :stroke-dasharray "0 16"
+        :stroke (or color (color/get :dots))}])]))
 
 (defn outline-layer
   [{:keys [width height padding] :or {padding 10}}]

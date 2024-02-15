@@ -490,9 +490,7 @@
         props (create-props date)]
     {:file    (str "journal/" (:month-name props) "/Month " (:month-name props))
      :props    props
-     :defs     [[presets/subgrid-pattern]
-                [presets/basegrid-pattern]
-                [presets/dots-pattern]]
+     :defs     []
      :children [[fills                      props]
                 [striping                   props]
                 [presets/subgrid-layer      props]

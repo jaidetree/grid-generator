@@ -9,9 +9,7 @@
                :height (svg/in->px 11)}]
     {:file "Spread 2024"
      :props props
-     :defs [[presets/basegrid-pattern]
-            [presets/subgrid-pattern]
-            [presets/dots-pattern]]
+     :defs []
      :children [[presets/subgrid-layer  props]
                 [presets/basegrid-layer props]
                 [presets/dots-layer     props]
