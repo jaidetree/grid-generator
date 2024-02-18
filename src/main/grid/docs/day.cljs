@@ -14,8 +14,8 @@
 (def x-gutter (* 1 16))
 (def y-gutter (* 2 16))
 
-(def work-tasks 8)
-(def personal-tasks 6)
+(def work-tasks 7)
+(def personal-tasks 7)
 
 (def tasks-gap (* (- 16 work-tasks personal-tasks)
                   16))
@@ -142,16 +142,17 @@
         :fill "none"}]
      [:text
       {:x (+ x-start
-             (* 35.5 16)
+             (* 44 16)
              x-gutter)
        :y (+ y-start
-             (* 1 16))
+             -3
+             #_(* 1 16))
        :fontFamily "OperatorMono Nerd Font"
-       :fontSize   "14px"
+       :fontSize   "12px"
        :fontStyle  "italic"
-       :textAnchor "start"
-       :fill (color/get :teal)}
-      (str "How was today?")]
+       :textAnchor "end"
+       :fill border}
+      (str "How was your day?")]
      [:circle
       {:cx (+ x-start
               (* 32 16)
