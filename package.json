@@ -12,7 +12,8 @@
 		"start": "",
 		"render": "nbb -m grid.cli.render",
 		"watch": "nodemon --watch ./src/main -e cljs -x npm run render",
-		"format": "prettier --plugin=@prettier/plugin-xml --bracket-same-line false --single-attribute-per-line true --xml-whitespace-sensitivity ignore"
+		"format": "prettier --plugin=@prettier/plugin-xml --bracket-same-line false --single-attribute-per-line true --xml-whitespace-sensitivity ignore",
+		"repl": "nbb nrepl-server"
 	},
 	"author": "",
 	"license": "ISC",

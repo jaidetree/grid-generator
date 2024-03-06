@@ -271,6 +271,66 @@
        :stroke border
        :fill "none"}]])
 
+(defn schedule-blocks
+  [{:keys [rect-width rect-height]}]
+  [:g#schedule-blocks
+   (for [row (range 0 25)]
+     (let [y (+ y-start
+                (* 10 16)
+                (* row 2 16))]
+       [:line
+        {:key row
+         :x1 x-start
+         :y1 y
+         :x2 (+ x-start
+               (* rect-width 7))
+         :y2 y
+         :stroke-width 1
+         :stroke (-> (color/get :dark-grape)
+                     (color/brightness 20)
+                     (color/saturate -15))}]))
+   (for [col (range 0 7)
+         row (range 0 24)]
+     (let [idx (+ (* col 24) row)
+           hour-12 (cond
+                     (= row 0) "12a"
+                     (> row 12) (str (- row 12) "p")
+                     :else       (str row "a"))]
+       [:g
+        {:key idx}
+
+        [svg/rounded-rect
+         {:r 0
+          :x (+ x-start
+                (* col rect-width)
+                8)
+          :y (+ y-start
+                (* 10 16)
+                (* row 2 16)
+                -6)
+          :width (* 1.5 16)
+          :height 10
+          :fill (case col
+                  0 weekend-bg
+                  6 weekend-bg
+                  month-bg)}]
+        [:text
+         {:x (+ x-start
+                (* col rect-width)
+                19)
+          :y (+ y-start
+                (* 10 16)
+                (* row 2 16)
+                3)
+          :font-family "OperatorMono Nerd Font"
+          :font-size   "12px"
+          :font-style  "italic"
+          :fill        border
+          :text-anchor "middle"}
+         hour-12]]))])
+
+
+
 (defn create-props
   [{:keys [start end]}]
   (let [start-m (.getMonth start)
@@ -313,7 +373,8 @@
                  [column-dividers        props]
                  [calendar-border        props]
                  [column-labels          props]
-                 [day-labels             props]]
+                 [day-labels             props]
+                 [schedule-blocks        props]]
                 [presets/outline-layer   props]
                 [presets/title-layer     props title]]}))
 

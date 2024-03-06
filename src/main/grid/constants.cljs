@@ -2,7 +2,7 @@
   (:require
     [grid.color :as color]))
 
-(def weekday-color-interval (/ 260 7)) ;; Covers red to blue
+(def weekday-color-interval (/ 340 7))
 
 (def weekdays
  (->> [{:title "Sunday"}

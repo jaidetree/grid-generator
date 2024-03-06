@@ -508,7 +508,10 @@
 
 (defn -main
   [& args]
-  (cond (empty? args) [(doc)]))
+  (cond (empty? args) [(doc)]
+        :else         (for [date-str args]
+                        (let [date (js/Date. date-str)]
+                          (doc date)))))
 
 ;; Rough code for the tasks part
 #_(for [i (range 0 14)
