@@ -23,14 +23,14 @@
 (def habit-color-interval (/ 240 5))
 
 (def habits
-  (->> [{:title "Meditate AM"
-         :icon  "sunrise"}
-        {:title "Meditate PM"
-         :icon  "moon"}
+  (->> [{:title "Meditate"
+         :icon  "yin-yang"}
         {:title "Exercise"
          :icon  "dumbbell"}
-        {:title "Gaming"
-         :icon  "gamepad-modern"}
+        {:title "Study"
+         :icon  "magnifying-glass"}
+        {:title "Draw"
+         :icon  "pen-paintbrush"}
         {:title "Read"
          :icon  "book-open-cover"}]
        (map-indexed vector)
