@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "esbuild ./build/js/app.js --bundle --outfile=public/js/app.bundle.js",
-		"dev": "concurrently npm:dev:*",
+		"dev": "serve -l 9000 -S ./public",
 		"dev:cljs": "shadow-cljs watch app",
 		"dev:css": "postcss ./src/css/styles.css -o ./public/css/styles.css --watch",
 		"dev:js": "node ./scripts/esbuild.watch.mjs",
