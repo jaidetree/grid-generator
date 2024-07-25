@@ -2,6 +2,13 @@
 
 A toolkit for generating paper-sized grid SVG templates for tools like Goodnotes 6.
 
+[[./docs/img/day.jpg]]
+[[./docs/img/week.jpg]]
+[[./docs/img/month.jpg]]
+[[./docs/img/calendar.jpg]]
+[[./docs/img/year.jpg]]
+[[./docs/img/projects.jpg]]
+
 * Usage
 
 1. Clone the repo
