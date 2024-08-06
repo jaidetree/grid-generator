@@ -29,7 +29,7 @@
          :icon  "dumbbell"}
         {:title "Study"
          :icon  "magnifying-glass"}
-        {:title "Draw"
+        {:title "Art"
          :icon  "pen-paintbrush"}
         {:title "Read"
          :icon  "book-open-cover"}]

@@ -73,7 +73,7 @@
       (color/brightness 20)))
 
 (defn schedule-fill
-  []
+  [{:keys [date]}]
   [:g
    [svg/rounded-rect
     {:r [10 10 0 0]
@@ -98,7 +98,23 @@
      :height (* 15 16)
      :fill   (-> (color/get :dark-grape)
                  (color/saturate -15)
-                 (color/brightness 5))}]])
+                 (color/brightness 5))}]
+   [:text
+    {:x (+ x-start
+           (* 45 16)
+           x-gutter)
+     :y (+ y-start
+           (* 33 16)
+           y-gutter)
+     :font-family "OperatorMono Nerd Font"
+     :font-size "126px"
+     :fill (-> (color/get :dark-grape)
+               (color/saturate -15)
+               (color/brightness 15))
+     :text-anchor "end"}
+    (str (subs (date/date->weekday-name date) 0 2))]])
+
+
 
 (defn mood-sticker
   [{:keys [x y fill d transform]}]
@@ -294,6 +310,7 @@
      :height (* 3 16)
      :stroke border
      :fill schedule-fill-color}]
+
    [svg/rounded-rect
     {:r [10 10 10 10]
      :x (+ x-start
@@ -325,7 +342,7 @@
       [:text
        {:key row
         :x (+ x-start
-              (* 32 16)
+              (* 31 16)
               x-gutter)
         :y (+ y-start
               (* 20 16)
@@ -338,7 +355,7 @@
         :fill (-> (color/get :pink)
                   #_(color/saturate 10)
                   #_(color/brightness 20))}
-       ":"])]])
+       "@"])]])
 
 (defn wavy-line
   [{:keys [x y segments stroke stroke-width fill]}]
