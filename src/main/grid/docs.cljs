@@ -6,4 +6,5 @@
     [grid.docs.year]
     [grid.docs.projects]
     [grid.docs.todo-item]
-    [grid.docs.calendar]))
+    [grid.docs.calendar]
+    [grid.docs.music]))
